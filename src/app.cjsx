@@ -7,29 +7,33 @@ Group = ReactCanvas.Group
 Layer = ReactCanvas.Layer
 
 # actions
-handleUpdateBgColor = (state, tile) ->
+handleUpdateBgColor = (state, rowId, tile) ->
+  rowIdx = rowId
+  tileIdx = tile.get('id') - 1
   newTile  = tile.set 'backgroundColor', 'cyan'
-  id       = tile.get 'id'
-  newState = state.setIn ['tiles', id], newTile
+  newState = state.setIn ['tiles', rowIdx, tileIdx], newTile
   render newState
 
-# component styles
-GridStyle = Immutable.Map
-  width: 500
-  height: 510
-  flexDirection: "row"
-  flexWrap: "wrap"
-  backgroundColor: "white"
-
-TileStyle = Immutable.Map
-  wrap: Immutable.Map
+# component styles, uses css-layout to position canvas elements
+Styles = Immutable.Map
+  TileRow: Immutable.Map
+    backgroundColor: 'cyan'
+    flex: 1
+    flexDirection: 'row'
+    width: 500
+    height: 17
+  Grid: Immutable.Map
+    width: 500
+    height: 510
+    backgroundColor: "white"
+  TileWrap: Immutable.Map
     width: 10
     height: 17
     backgroundColor: "white"
     alignItems: "center"
     justifyContent: "flex-end"
     paddingBottom: 4
-  dot: Immutable.Map
+  TileDot: Immutable.Map
     width: 2,
     height: 2,
     backgroundColor: "red"
@@ -37,26 +41,40 @@ TileStyle = Immutable.Map
 # app state
 State = Immutable.Map
   actionHandler: null
-  tiles: Immutable.List []
+  tileGrid: Immutable.List []
 
 # React components
 Tile = React.createClass
   mixins: [ImmutableRenderMixin]
 
   handleClick: ->
-    @props.actionHandler 'updateBgColor', @props.data
+    @props.actionHandler 'updateBgColor', @props.rowId, @props.data
 
   render: ->
     bgColor   = @props.data.get 'backgroundColor'
     color     = @props.data.get 'color'
-    wrapStyle = TileStyle.get('wrap').set 'backgroundColor', bgColor
-    dotStyle  = TileStyle.get('dot').set 'backgroundColor', color
+    wrapStyle = Styles.get('TileWrap').set 'backgroundColor', bgColor
+    dotStyle  = Styles.get('TileDot').set 'backgroundColor', color
 
     return (
-      <Group style={wrapStyle.toJS()} onTouchMove={@handleClick}>
+      <Group style={wrapStyle.toJS()} onTouchMove={@handleClick}
+                                      onTouchStart={@handleClick}>
         <Layer style={dotStyle.toJS()} />
       </Group>
     )
+
+TileRow = React.createClass
+  mixins: [ImmutableRenderMixin]
+
+  render: ->
+    actionHandler = @props.actionHandler
+    rowId = @props.id
+    tiles = @props.data.map (tile) ->
+      id = "y#{rowId}x#{tile.get 'id'}"
+      <Tile rowId={rowId} key={id} data={tile} actionHandler={actionHandler} />
+    <Group style={Styles.get('TileRow').toJS()}>
+      {tiles.toJS()}
+    </Group>
 
 App = React.createClass
   mixins: [ImmutableRenderMixin]
@@ -66,14 +84,13 @@ App = React.createClass
 
   render: ->
     actionHandler = @actionHandler
-    tiles = @props.data.get('tiles').map (tile) ->
-      console.log 'am i doing this work?'
-      <Tile data={tile} actionHandler={actionHandler} key={tile.get 'id'} />
+    tileRows = @props.data.get('tiles').map (tileRow, i) ->
+      <TileRow data={tileRow} actionHandler={actionHandler} key={i} id={i} />
 
     return (
       <Surface top={0} left={0} width={500} height={510} enableCSSLayout={true}>
-        <Group style={GridStyle.toJS()}>
-          {tiles.toJS()}
+        <Group style={Styles.get('Grid').toJS()}>
+          {tileRows.toJS()}
         </Group>
       </Surface>
     )
@@ -86,18 +103,21 @@ render = (state) ->
 actionHandler = (actionsMap) -> (state, fnName, args...) ->
   actionsMap[fnName].apply null, [state].concat args
 
+createGrid = (rows, cols) ->
+  rows = (for y in [1..rows]
+           (for x in [1..cols]
+             id: x
+             backgroundColor: "yellow"
+             color: "red"))
+  Immutable.fromJS rows
+
 # app setup
 actionsMap =
   updateBgColor: handleUpdateBgColor
 
 state = State.merge
   actionHandler: actionHandler actionsMap
-  tiles: Immutable.Range(0, 1499).map((i) ->
-    Immutable.Map
-      id: i
-      backgroundColor: "white"
-      color: "red"
-  ).toList()
+  tiles: createGrid 30, 50
 
 # initial render
 render state
