@@ -66,14 +66,14 @@ App = React.createClass
 
   render: ->
     actionHandler = @actionHandler
+    tiles = @props.data.get('tiles').map (tile) ->
+      console.log 'am i doing this work?'
+      <Tile data={tile} actionHandler={actionHandler} key={tile.get 'id'} />
 
     return (
       <Surface top={0} left={0} width={500} height={510} enableCSSLayout={true}>
         <Group style={GridStyle.toJS()}>
-          {(@props.data.get('tiles').map (tile) ->
-            console.log 'am i doing this work?'
-            <Tile data={tile} actionHandler={actionHandler} key={tile.get 'id'} />).toJS()
-          }
+          {tiles.toJS()}
         </Group>
       </Surface>
     )
