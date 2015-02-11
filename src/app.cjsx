@@ -43,9 +43,6 @@ State = Immutable.Map
 Tile = React.createClass
   mixins: [ImmutableRenderMixin]
 
-  propTypes:
-    data: React.PropTypes.instanceOf Immutable.Map
-
   handleClick: ->
     @props.actionHandler 'updateBgColor', @props.data
 
@@ -56,7 +53,7 @@ Tile = React.createClass
     dotStyle  = TileStyle.get('dot').set 'backgroundColor', color
 
     return (
-      <Group style={wrapStyle.toJS()} onClick={@handleClick}>
+      <Group style={wrapStyle.toJS()} onTouchMove={@handleClick}>
         <Layer style={dotStyle.toJS()} />
       </Group>
     )
@@ -64,21 +61,19 @@ Tile = React.createClass
 App = React.createClass
   mixins: [ImmutableRenderMixin]
 
-  propTypes:
-    data: React.PropTypes.instanceOf Immutable.Map
-
   actionHandler: (args...) ->
     @props.data.get('actionHandler').apply null, [@props.data].concat args
 
   render: ->
     actionHandler = @actionHandler
-    tiles = @props.data.get('tiles').map (tile) ->
-      <Tile data={tile} actionHandler={actionHandler} key={tile.get 'id'} />
 
     return (
       <Surface top={0} left={0} width={500} height={510} enableCSSLayout={true}>
         <Group style={GridStyle.toJS()}>
-          {tiles.toJS()}
+          {(@props.data.get('tiles').map (tile) ->
+            console.log 'am i doing this work?'
+            <Tile data={tile} actionHandler={actionHandler} key={tile.get 'id'} />).toJS()
+          }
         </Group>
       </Surface>
     )
