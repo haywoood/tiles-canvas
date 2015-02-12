@@ -18,8 +18,6 @@ handleUpdateBgColor = (state, rowId, tile) ->
 Styles = Immutable.Map
   TileRow: Immutable.Map
     backgroundColor: 'cyan'
-    flex: 1
-    flexDirection: 'row'
     width: 500
     height: 17
   Grid: Immutable.Map
@@ -30,9 +28,6 @@ Styles = Immutable.Map
     width: 10
     height: 17
     backgroundColor: "white"
-    alignItems: "center"
-    justifyContent: "flex-end"
-    paddingBottom: 4
   TileDot: Immutable.Map
     width: 2,
     height: 2,
@@ -53,8 +48,14 @@ Tile = React.createClass
   render: ->
     bgColor   = @props.data.get 'backgroundColor'
     color     = @props.data.get 'color'
-    wrapStyle = Styles.get('TileWrap').set 'backgroundColor', bgColor
-    dotStyle  = Styles.get('TileDot').set 'backgroundColor', color
+    wrapStyle = Styles.get('TileWrap').mergeDeep
+      backgroundColor: bgColor
+      top: @props.top
+      left: @props.left
+    dotStyle  = Styles.get('TileDot').mergeDeep
+      backgroundColor: color
+      top: @props.top + 11
+      left: @props.left + 4
 
     return (
       <Group style={wrapStyle.toJS()} onTouchMove={@handleClick}
@@ -69,10 +70,14 @@ TileRow = React.createClass
   render: ->
     actionHandler = @props.actionHandler
     rowId = @props.id
-    tiles = @props.data.map (tile) ->
+    top   = rowId * 17
+    styles = Styles.get 'TileRow'
+    styles = styles.set 'top', top
+    tiles = @props.data.map (tile, i) ->
       id = "y#{rowId}x#{tile.get 'id'}"
-      <Tile rowId={rowId} key={id} data={tile} actionHandler={actionHandler} />
-    <Group style={Styles.get('TileRow').toJS()}>
+      left = i * 10
+      <Tile top={top} left={left} rowId={rowId} key={id} data={tile} actionHandler={actionHandler} />
+    <Group top={top} style={styles.toJS()}>
       {tiles.toJS()}
     </Group>
 
@@ -88,7 +93,7 @@ App = React.createClass
       <TileRow data={tileRow} actionHandler={actionHandler} key={i} id={i} />
 
     return (
-      <Surface top={0} left={0} width={500} height={510} enableCSSLayout={true}>
+      <Surface top={0} left={0} width={500} height={510}>
         <Group style={Styles.get('Grid').toJS()}>
           {tileRows.toJS()}
         </Group>
@@ -104,12 +109,12 @@ actionHandler = (actionsMap) -> (state, fnName, args...) ->
   actionsMap[fnName].apply null, [state].concat args
 
 createGrid = (rows, cols) ->
-  rows = (for y in [1..rows]
-           (for x in [1..cols]
-             id: x
-             backgroundColor: "yellow"
-             color: "red"))
-  Immutable.fromJS rows
+  Immutable.List (for y in [1..rows]
+    Immutable.List (for x in [1..cols]
+      Immutable.Map
+        id: x
+        backgroundColor: "white"
+        color: "red"))
 
 # app setup
 actionsMap =
