@@ -11,3 +11,7 @@ html, body {
   justify-content: center;
   margin-top: 60px;
 }
+
+.Legend {
+  margin-right: 25px;
+}
