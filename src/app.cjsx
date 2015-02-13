@@ -8,18 +8,19 @@ Layer                = ReactCanvas.Layer
 
 
 # actions
+handleSelectTile = (state, rowId, tile) ->
+  newState = state.set 'selectedTile', tile
+
 handleUpdateBgColor = (state, rowId, tile) ->
   rowIdx = rowId
   tileIdx = tile.get('id') - 1
-  newTile  = tile.set 'backgroundColor', 'cyan'
+  newTile  = tile.merge state.get 'selectedTile'
   newState = state.setIn ['tileGrid', rowIdx, tileIdx], newTile
-  render newState
 
 
 # component styles, uses css-layout to position canvas elements
 Styles = Immutable.Map
   TileRow: Immutable.Map
-    backgroundColor: 'cyan'
     width: 500
     height: 17
   Grid: Immutable.Map
@@ -39,6 +40,7 @@ Styles = Immutable.Map
 # app state
 State = Immutable.Map
   actionHandler: null
+  selectedTile: null
   tileGrid: Immutable.List []
   legend: Immutable.Map
     tilesPerRow: 9
@@ -69,7 +71,7 @@ Tile = React.createClass
   mixins: [ImmutableRenderMixin]
 
   handleClick: ->
-    @props.actionHandler 'updateBgColor', @props.rowId, @props.data
+    @props.actionHandler @props.rowId, @props.data
 
   render: ->
     bgColor   = @props.data.get 'backgroundColor'
@@ -113,10 +115,13 @@ TileRow = React.createClass
 TileGrid = React.createClass
   mixins: [ImmutableRenderMixin]
 
+  handleTileAction: (rowId, tile) ->
+    @props.actionHandler 'updateBgColor', rowId, tile
+
   render: ->
-    actionHandler = @props.actionHandler
+    handleTileAction = @handleTileAction
     tileRows = @props.data.map (tileRow, i) ->
-      <TileRow data={tileRow} actionHandler={actionHandler} key={i} id={i} />
+      <TileRow data={tileRow} actionHandler={handleTileAction} key={i} id={i} />
 
     return (
       <div className="TileGrid">
@@ -132,15 +137,18 @@ TileGrid = React.createClass
 Legend = React.createClass
   mixins: [ImmutableRenderMixin]
 
+  handleTileAction: (rowId, tile) ->
+    @props.actionHandler 'selectTile', rowId, tile
+
   render: ->
-    colors        = @props.data.get 'colors'
-    actionHandler = @props.actionHandler
-    tilesPerRow   = @props.data.get 'tilesPerRow'
-    width         = 10 * tilesPerRow
-    height        = 17 * 2
+    colors           = @props.data.get 'colors'
+    handleTileAction = @handleTileAction
+    tilesPerRow      = @props.data.get 'tilesPerRow'
+    width            = 10 * tilesPerRow
+    height           = 17 * 2
 
     rows = partition(tilesPerRow, colors).map (row, i) ->
-      <TileRow data={row} actionHandler={actionHandler} key={i} id={i} />
+      <TileRow data={row} actionHandler={handleTileAction} key={i} id={i} />
 
     return (
       <div className="Legend">
@@ -178,8 +186,11 @@ render = (state) ->
   React.render <App data={state} />, mountNode
 
 
-actionHandler = (actionsMap) -> (state, fnName, args...) ->
-  actionsMap[fnName].apply null, [state].concat args
+actionHandler = (actionsMap, renderFn) -> (state, fnName, args...) ->
+  # our action functions are pure, and always return a new state object
+  newState = actionsMap[fnName].apply null, [state].concat args
+  # we re-render our app with the updated state
+  renderFn newState
 
 
 createGrid = (rows, cols) ->
@@ -194,10 +205,12 @@ createGrid = (rows, cols) ->
 # app setup
 actionsMap =
   updateBgColor: handleUpdateBgColor
+  selectTile: handleSelectTile
 
 
 state = State.merge
-  actionHandler: actionHandler actionsMap
+  selectedTile: State.getIn ['legend', 'colors', 0]
+  actionHandler: actionHandler actionsMap, render
   tileGrid: createGrid 30, 50
 
 
