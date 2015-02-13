@@ -7,7 +7,6 @@ Group                = ReactCanvas.Group
 Layer                = ReactCanvas.Layer
 
 
-
 # actions
 handleUpdateBgColor = (state, rowId, tile) ->
   rowIdx = rowId
@@ -15,7 +14,6 @@ handleUpdateBgColor = (state, rowId, tile) ->
   newTile  = tile.set 'backgroundColor', 'cyan'
   newState = state.setIn ['tileGrid', rowIdx, tileIdx], newTile
   render newState
-
 
 
 # component styles, uses css-layout to position canvas elements
@@ -36,7 +34,6 @@ Styles = Immutable.Map
     width: 2,
     height: 2,
     backgroundColor: "red"
-
 
 
 # app state
@@ -67,7 +64,6 @@ State = Immutable.Map
     ]
 
 
-
 # React components
 Tile = React.createClass
   mixins: [ImmutableRenderMixin]
@@ -94,7 +90,6 @@ Tile = React.createClass
     )
 
 
-
 TileRow = React.createClass
   mixins: [ImmutableRenderMixin]
 
@@ -115,7 +110,6 @@ TileRow = React.createClass
     )
 
 
-
 TileGrid = React.createClass
   mixins: [ImmutableRenderMixin]
 
@@ -133,12 +127,6 @@ TileGrid = React.createClass
         </Surface>
       </div>
     )
-
-
-partition = (size, list) ->
-  list1 = list.slice 0, size
-  list2 = list.slice size
-  Immutable.List [list1, list2]
 
 
 Legend = React.createClass
@@ -163,7 +151,6 @@ Legend = React.createClass
     )
 
 
-
 App = React.createClass
   mixins: [ImmutableRenderMixin]
 
@@ -179,8 +166,13 @@ App = React.createClass
     )
 
 
-
 # helpers
+partition = (size, list) ->
+  list1 = list.slice 0, size
+  list2 = list.slice size
+  Immutable.List [list1, list2]
+
+
 render = (state) ->
   mountNode = document.getElementsByTagName('body')[0]
   React.render <App data={state} />, mountNode
