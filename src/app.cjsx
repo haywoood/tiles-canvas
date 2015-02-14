@@ -39,17 +39,6 @@ handleUpdateBgColor = (state, rowId, tile) ->
   newState = state.setIn ['tileGrid', rowIdx, tileIdx], newTile
 
 
-# component styles
-Styles = Immutable.Map
-  TileRow: Immutable.Map
-    width: 500
-    height: 17
-  Grid: Immutable.Map
-    width: 500
-    height: 510
-    backgroundColor: "white"
-
-
 # base tile model
 BaseTile = Immutable.Map
   style: Immutable.Map
@@ -106,17 +95,20 @@ Tile = React.createClass
     @props.actionHandler @props.data
 
   render: ->
+    scale = @props.scale or 1
     style = @props.data.get 'style'
     wrapStyle = style.get('tile').merge
       top: @props.top
       left: @props.left
     dotStyle  = style.get('dot').merge
-      top: @props.top + 11
-      left: @props.left + 4
+      top: @props.top + Math.round (11 * scale)
+      left: @props.left + (4 * scale)
 
     return (
       <Group style={wrapStyle.toJS()} onTouchMove={@handleClick} onTouchStart={@handleClick}>
-        <Layer style={dotStyle.toJS()} />
+        {unless scale isnt 1
+          <Layer style={dotStyle.toJS()} />
+        }
       </Group>
     )
 
@@ -128,18 +120,17 @@ TileRow = React.createClass
     @props.actionHandler @props.id, tile
 
   render: ->
+    scale = @props.scale or 1
     actionHandler = @handleTileAction
     offsetTop     = @props.offsetTop or 0
     offsetLeft    = @props.offsetLeft or 0
-    top    = (@props.id * 17) + offsetTop
-    styles = Styles.get 'TileRow'
-    styles = styles.set 'top', top
+    top    = ((@props.id * 17) + offsetTop) * scale
     tiles  = @props.data.map (tile, i) ->
       id   = tile.get('id') or tile.get 'backgroundColor'
-      left = (i * 10) + offsetLeft
-      <Tile top={top} left={left} key={id} data={tile} actionHandler={actionHandler} />
+      left = Math.round ((i * 10) + offsetLeft) * scale
+      <Tile top={top} scale={scale} left={left} key={id} data={tile} actionHandler={actionHandler} />
     return (
-      <Group top={top} style={styles.toJS()}>
+      <Group>
         {tiles.toJS()}
       </Group>
     )
@@ -153,15 +144,14 @@ TileGrid = React.createClass
 
   render: ->
     handleTileAction = @handleTileAction
+    scale = @props.scale or 1
     tileRows = @props.data.map (tileRow, i) ->
-      <TileRow data={tileRow} actionHandler={handleTileAction} key={i} id={i} />
+      <TileRow data={tileRow} scale={scale} actionHandler={handleTileAction} key={i} id={i} />
 
     return (
       <div className="TileGrid">
-        <Surface top={0} left={9} width={500} height={510}>
-          <Group style={Styles.get('Grid').toJS()}>
-            {tileRows.toJS()}
-          </Group>
+        <Surface style={backgroundColor: 'white'} top={0} left={0} width={500 * scale} height={Math.floor 510 * scale}>
+          {tileRows.toJS()}
         </Surface>
       </div>
     )
@@ -209,7 +199,10 @@ App = React.createClass
     return (
       <div className="Tiles">
         <Legend data={@props.data.get 'legend'} actionHandler={@actionHandler} />
-        <TileGrid data={@props.data.get 'tileGrid'} actionHandler={@actionHandler} />
+        <div style={display: 'flex', flexDirection: 'column'}>
+          <TileGrid data={@props.data.get 'tileGrid'} actionHandler={@actionHandler} />
+          <TileGrid scale={.25} data={@props.data.get 'tileGrid'} actionHandler={@actionHandler} />
+        </div>
       </div>
     )
 
