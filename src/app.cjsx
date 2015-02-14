@@ -178,7 +178,7 @@ Legend = React.createClass
     handleTileAction = @handleTileAction
     tilesPerRow      = @props.data.get 'tilesPerRow'
     width            = (10 * tilesPerRow) + 4
-    rowSpacing       = 20
+    rowSpacing       = 15
 
     rows = partition(tilesPerRow, colors).map (row, i) ->
       offsetTop = if i > 0 then rowSpacing else 2
