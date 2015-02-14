@@ -9,4 +9,4 @@ To run:
 `gulp`  
 then visit [http://localhost:8080/](http://localhost:8080/)
 
-![Tiles](https://s3.amazonaws.com/uploads.hipchat.com/83735/604403/rJk3oHmH3UsLt7T/tiles.gif)
+![Tiles](https://s3.amazonaws.com/tiles-canvas/Screen+Shot+2015-02-13+at+9.58.53+PM.png)

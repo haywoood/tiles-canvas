@@ -7,9 +7,30 @@ Group                = ReactCanvas.Group
 Layer                = ReactCanvas.Layer
 
 
+# util fns
+removeHighlight = (tile) ->
+  tile.mergeDeep
+    style: tile:
+      borderColor: null
+      zIndex: 0
+
+
+highlight = (tile) ->
+  tile.mergeDeep
+    style: tile:
+      borderColor: 'blue'
+      borderWidth: 2
+      zIndex: 1
+
+
 # actions
 handleSelectTile = (state, rowId, tile) ->
-  newState = state.set 'selectedTile', tile
+  idx = state.getIn(['legend', 'colors']).indexOf tile
+  newTile = highlight tile
+  newState = state.updateIn ['legend', 'colors'], (xs) -> xs.map removeHighlight
+  newState = newState.setIn ['legend', 'colors', idx], newTile
+  newState = newState.set 'selectedTile', tile
+
 
 handleUpdateBgColor = (state, rowId, tile) ->
   rowIdx = rowId
@@ -18,7 +39,7 @@ handleUpdateBgColor = (state, rowId, tile) ->
   newState = state.setIn ['tileGrid', rowIdx, tileIdx], newTile
 
 
-# component styles, uses css-layout to position canvas elements
+# component styles
 Styles = Immutable.Map
   TileRow: Immutable.Map
     width: 500
@@ -27,14 +48,21 @@ Styles = Immutable.Map
     width: 500
     height: 510
     backgroundColor: "white"
-  TileWrap: Immutable.Map
-    width: 10
-    height: 17
-    backgroundColor: "white"
-  TileDot: Immutable.Map
-    width: 2,
-    height: 2,
-    backgroundColor: "red"
+
+
+# base tile model
+BaseTile = Immutable.Map
+  style: Immutable.Map
+    tile: Immutable.Map
+      width: 10
+      height: 17
+      backgroundColor: "white"
+      borderColor: null
+      borderWidth: 2
+    dot: Immutable.Map
+      width: 2,
+      height: 2,
+      backgroundColor: "red"
 
 
 # app state
@@ -44,26 +72,30 @@ State = Immutable.Map
   tileGrid: Immutable.List []
   legend: Immutable.Map
     tilesPerRow: 9
-    colors: Immutable.List [
-      Immutable.Map backgroundColor: "#444"   , color: "white"
-      Immutable.Map backgroundColor: "blue"   , color: "white"
-      Immutable.Map backgroundColor: "cyan"   , color: "blue"
-      Immutable.Map backgroundColor: "red"    , color: "white"
-      Immutable.Map backgroundColor: "pink"   , color: "white"
-      Immutable.Map backgroundColor: "yellow" , color: "red"
-      Immutable.Map backgroundColor: "#64c7cc", color: "cyan"
-      Immutable.Map backgroundColor: "#00a64d", color: "#75f0c3"
-      Immutable.Map backgroundColor: "#f5008b", color: "#ffdbbf"
-      Immutable.Map backgroundColor: "#0469bd", color: "#75d2fa"
-      Immutable.Map backgroundColor: "#fcf000", color: "#d60000"
-      Immutable.Map backgroundColor: "#010103", color: "#fa8e66"
-      Immutable.Map backgroundColor: "#7a2c02", color: "#fff3e6"
-      Immutable.Map backgroundColor: "#07c3f7", color: "#0d080c"
-      Immutable.Map backgroundColor: "#f5989c", color: "#963e03"
-      Immutable.Map backgroundColor: "#ed1c23", color: "#fff780"
-      Immutable.Map backgroundColor: "#f7f7f7", color: "#009e4c"
-      Immutable.Map backgroundColor: "#e04696", color: "#9c2c4b"
-    ]
+    colors: Immutable.List []
+
+
+# colors options for legend
+colors = [
+  { backgroundColor: "#444"   , color: "white"   }
+  { backgroundColor: "blue"   , color: "white"   }
+  { backgroundColor: "cyan"   , color: "blue"    }
+  { backgroundColor: "red"    , color: "white"   }
+  { backgroundColor: "pink"   , color: "white"   }
+  { backgroundColor: "yellow" , color: "red"     }
+  { backgroundColor: "#64c7cc", color: "cyan"    }
+  { backgroundColor: "#00a64d", color: "#75f0c3" }
+  { backgroundColor: "#f5008b", color: "#ffdbbf" }
+  { backgroundColor: "#0469bd", color: "#75d2fa" }
+  { backgroundColor: "#fcf000", color: "#d60000" }
+  { backgroundColor: "#010103", color: "#fa8e66" }
+  { backgroundColor: "#7a2c02", color: "#fff3e6" }
+  { backgroundColor: "white"  , color: "red"     }
+  { backgroundColor: "#f5989c", color: "#963e03" }
+  { backgroundColor: "#ed1c23", color: "#fff780" }
+  { backgroundColor: "#f7f7f7", color: "#009e4c" }
+  { backgroundColor: "#e04696", color: "#9c2c4b" }
+]
 
 
 # React components
@@ -71,17 +103,14 @@ Tile = React.createClass
   mixins: [ImmutableRenderMixin]
 
   handleClick: ->
-    @props.actionHandler @props.rowId, @props.data
+    @props.actionHandler @props.data
 
   render: ->
-    bgColor   = @props.data.get 'backgroundColor'
-    color     = @props.data.get 'color'
-    wrapStyle = Styles.get('TileWrap').mergeDeep
-      backgroundColor: bgColor
+    style = @props.data.get 'style'
+    wrapStyle = style.get('tile').merge
       top: @props.top
       left: @props.left
-    dotStyle  = Styles.get('TileDot').mergeDeep
-      backgroundColor: color
+    dotStyle  = style.get('dot').merge
       top: @props.top + 11
       left: @props.left + 4
 
@@ -95,16 +124,20 @@ Tile = React.createClass
 TileRow = React.createClass
   mixins: [ImmutableRenderMixin]
 
+  handleTileAction: (tile) ->
+    @props.actionHandler @props.id, tile
+
   render: ->
-    actionHandler = @props.actionHandler
-    rowId  = @props.id
-    top    = rowId * 17
+    actionHandler = @handleTileAction
+    offsetTop     = @props.offsetTop or 0
+    offsetLeft    = @props.offsetLeft or 0
+    top    = (@props.id * 17) + offsetTop
     styles = Styles.get 'TileRow'
     styles = styles.set 'top', top
     tiles  = @props.data.map (tile, i) ->
       id   = tile.get('id') or tile.get 'backgroundColor'
-      left = i * 10
-      <Tile top={top} left={left} rowId={rowId} key={id} data={tile} actionHandler={actionHandler} />
+      left = (i * 10) + offsetLeft
+      <Tile top={top} left={left} key={id} data={tile} actionHandler={actionHandler} />
     return (
       <Group top={top} style={styles.toJS()}>
         {tiles.toJS()}
@@ -144,15 +177,22 @@ Legend = React.createClass
     colors           = @props.data.get 'colors'
     handleTileAction = @handleTileAction
     tilesPerRow      = @props.data.get 'tilesPerRow'
-    width            = 10 * tilesPerRow
-    height           = 17 * 2
+    width            = (10 * tilesPerRow) + 4
+    rowSpacing       = 20
 
     rows = partition(tilesPerRow, colors).map (row, i) ->
-      <TileRow data={row} actionHandler={handleTileAction} key={i} id={i} />
+      offsetTop = if i > 0 then rowSpacing else 2
+      <TileRow data={row}
+               offsetTop={offsetTop}
+               offsetLeft={2}
+               actionHandler={handleTileAction}
+               key={i} id={i} />
+
+    height = (rows.size * rowSpacing) + (17 * rows.size) + 4
 
     return (
       <div className="Legend">
-        <Surface top={0} left={0} width={width} height={height}>
+        <Surface top={0} left={0} height={height} width={width}>
           {rows.toJS()}
         </Surface>
       </div>
@@ -181,38 +221,50 @@ partition = (size, list) ->
   Immutable.List [list1, list2]
 
 
-render = (state) ->
-  mountNode = document.getElementsByTagName('body')[0]
+render = (mountNode, state) ->
   React.render <App data={state} />, mountNode
 
 
-actionHandler = (actionsMap, renderFn) -> (state, fnName, args...) ->
-  # our action functions are pure, and always return a new state object
-  newState = actionsMap[fnName].apply null, [state].concat args
-  # we re-render our app with the updated state
-  renderFn newState
+actionHandler = (actionsMap, renderFn, mountNode) ->
+  (state, fnName, args...) ->
+    # our action functions are pure, and always return a new state object
+    newState = actionsMap[fnName].apply null, [state].concat args
+    # we re-render our app with the updated state
+    renderFn mountNode, newState
 
 
-createGrid = (rows, cols) ->
+createGrid = (rows, cols, tile) ->
   Immutable.List (for y in [1..rows]
     Immutable.List (for x in [1..cols]
-      Immutable.Map
-        id: x
-        backgroundColor: "white"
-        color: "red"))
+      tile.mergeDeep id: x))
+
+
+createLegendTiles = (colors, tile) ->
+  Immutable.List (for {backgroundColor, color} in colors
+    tile.mergeDeep
+      style:
+        tile: backgroundColor: backgroundColor
+        dot: backgroundColor: color)
 
 
 # app setup
+mountNode = document.getElementsByTagName('body')[0]
+
+
 actionsMap =
   updateBgColor: handleUpdateBgColor
   selectTile: handleSelectTile
 
 
-state = State.merge
-  selectedTile: State.getIn ['legend', 'colors', 0]
-  actionHandler: actionHandler actionsMap, render
-  tileGrid: createGrid 30, 50
+state = State.mergeDeep
+  actionHandler: actionHandler(actionsMap, render, mountNode)
+  tileGrid: createGrid 30, 50, BaseTile
+  legend: colors: createLegendTiles colors, BaseTile
+
+
+selectedTile = state.getIn ['legend', 'colors', 0]
+state = state.set 'selectedTile', selectedTile
 
 
 # initial render
-render state
+render mountNode, state
