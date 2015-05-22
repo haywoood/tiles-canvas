@@ -5,38 +5,22 @@ ImmutableRenderMixin = require 'react-immutable-render-mixin'
 Surface              = ReactCanvas.Surface
 Group                = ReactCanvas.Group
 Layer                = ReactCanvas.Layer
+actionsMap           = require './actions'
+utils                = require './utils'
+data                 = require './data'
 
 
-# util fns
-removeHighlight = (tile) ->
-  tile.mergeDeep
-    style: tile:
-      borderColor: null
-      zIndex: 0
+{ render
+  highlight
+  partition
+  createGrid
+  actionHandler
+  removeHighlight
+  createLegendTiles } = utils
 
 
-highlight = (tile) ->
-  tile.mergeDeep
-    style: tile:
-      borderColor: 'blue'
-      borderWidth: 2
-      zIndex: 1
-
-
-# actions
-handleSelectTile = (state, rowId, tile) ->
-  idx = state.getIn(['legend', 'colors']).indexOf tile
-  newTile = highlight tile
-  newState = state.updateIn ['legend', 'colors'], (xs) -> xs.map removeHighlight
-  newState = newState.setIn ['legend', 'colors', idx], newTile
-  newState = newState.set 'selectedTile', tile
-
-
-handleUpdateBgColor = (state, rowId, tile) ->
-  rowIdx = rowId
-  tileIdx = tile.get('id') - 1
-  newTile  = tile.merge state.get 'selectedTile'
-  newState = state.setIn ['tileGrid', rowIdx, tileIdx], newTile
+{ State
+  Colors } = data
 
 
 # base tile model
@@ -52,39 +36,6 @@ BaseTile = Immutable.Map
       width: 2,
       height: 2,
       backgroundColor: "red"
-
-
-# app state
-State = Immutable.Map
-  actionHandler: null
-  selectedTile: null
-  tileGrid: Immutable.List []
-  legend: Immutable.Map
-    tilesPerRow: 9
-    colors: Immutable.List []
-
-
-# colors options for legend
-colors = [
-  { backgroundColor: "#444"   , color: "white"   }
-  { backgroundColor: "blue"   , color: "white"   }
-  { backgroundColor: "cyan"   , color: "blue"    }
-  { backgroundColor: "red"    , color: "white"   }
-  { backgroundColor: "pink"   , color: "white"   }
-  { backgroundColor: "yellow" , color: "red"     }
-  { backgroundColor: "#64c7cc", color: "cyan"    }
-  { backgroundColor: "#00a64d", color: "#75f0c3" }
-  { backgroundColor: "#f5008b", color: "#ffdbbf" }
-  { backgroundColor: "#0469bd", color: "#75d2fa" }
-  { backgroundColor: "#fcf000", color: "#d60000" }
-  { backgroundColor: "#010103", color: "#fa8e66" }
-  { backgroundColor: "#7a2c02", color: "#fff3e6" }
-  { backgroundColor: "white"  , color: "red"     }
-  { backgroundColor: "#f5989c", color: "#963e03" }
-  { backgroundColor: "#ed1c23", color: "#fff780" }
-  { backgroundColor: "#f7f7f7", color: "#009e4c" }
-  { backgroundColor: "#e04696", color: "#9c2c4b" }
-]
 
 
 # React components
@@ -106,7 +57,7 @@ Tile = React.createClass
 
     return (
       <Group style={wrapStyle.toJS()} onTouchMove={@handleClick} onTouchStart={@handleClick}>
-        {unless scale isnt 1
+        {if scale is 1
           <Layer style={dotStyle.toJS()} />
         }
       </Group>
@@ -145,14 +96,22 @@ TileGrid = React.createClass
   render: ->
     handleTileAction = @handleTileAction
     scale = @props.scale or 1
-    tileRows = @props.data.map (tileRow, i) ->
+    updateTileFn = @props.actionHandler.bind null, 'updateFrame'
+    playFramesFn = @props.actionHandler.bind null, 'playFrames'
+    tileRows = @props.data.get('grid').map (tileRow, i) ->
       <TileRow data={tileRow} scale={scale} actionHandler={handleTileAction} key={i} id={i} />
 
     return (
       <div className="TileGrid">
-        <Surface style={backgroundColor: 'white'} top={0} left={0} width={500 * scale} height={Math.floor 510 * scale}>
-          {tileRows.toJS()}
-        </Surface>
+        <div className="u-displayFlex">
+          <Surface style={backgroundColor: 'white'} top={0} left={0} width={500 * scale} height={Math.floor 510 * scale}>
+            {tileRows.toJS()}
+          </Surface>
+          <div>
+            <button onClick={updateTileFn}>Save</button>
+            <button onClick={playFramesFn}>Play</button>
+          </div>
+        </div>
       </div>
     )
 
@@ -189,6 +148,28 @@ Legend = React.createClass
     )
 
 
+FrameControls = React.createClass
+  mixins: [ImmutableRenderMixin]
+
+  render: ->
+    actionHandler = @props.actionHandler
+    currentFrameId = @props.currentFrame.get 'id'
+    createNewFrame = actionHandler.bind null, 'createNewFrame'
+    frameNav = @props.frames.map (frame, i) ->
+      makeFrameCurrent = actionHandler.bind null, 'makeFrameCurrent', frame
+      frameIsCurrent = Immutable.is currentFrameId, frame.get 'id'
+      content = if frameIsCurrent then "[#{i++}]" else i++
+
+      <div onClick={makeFrameCurrent}>{content}</div>
+
+
+    <div className="u-displayFlex">
+      <div onClick={createNewFrame}>+</div>
+      {frameNav.toJS()}
+    </div>
+
+
+
 App = React.createClass
   mixins: [ImmutableRenderMixin]
 
@@ -196,68 +177,35 @@ App = React.createClass
     @props.data.get('actionHandler').apply null, [@props.data].concat args
 
   render: ->
+    frames = @props.data.get 'frames'
+    currentFrame = @props.data.get 'currentFrame'
     return (
       <div className="Tiles">
         <Legend data={@props.data.get 'legend'} actionHandler={@actionHandler} />
         <div style={display: 'flex', flexDirection: 'column'}>
-          <TileGrid data={@props.data.get 'tileGrid'} actionHandler={@actionHandler} />
-          <TileGrid scale={.25} data={@props.data.get 'tileGrid'} actionHandler={@actionHandler} />
+          <FrameControls actionHandler={@actionHandler} frames={frames} currentFrame={currentFrame} />
+          <TileGrid data={@props.data.get 'currentFrame'} actionHandler={@actionHandler} />
         </div>
       </div>
     )
 
 
-# helpers
-partition = (size, list) ->
-  list1 = list.slice 0, size
-  list2 = list.slice size
-  Immutable.List [list1, list2]
-
-
+# app setup
 render = (mountNode, state) ->
   React.render <App data={state} />, mountNode
 
-
-actionHandler = (actionsMap, renderFn, mountNode) ->
-  (state, fnName, args...) ->
-    # our action functions are pure, and always return a new state object
-    newState = actionsMap[fnName].apply null, [state].concat args
-    # we re-render our app with the updated state
-    renderFn mountNode, newState
-
-
-createGrid = (rows, cols, tile) ->
-  Immutable.List (for y in [1..rows]
-    Immutable.List (for x in [1..cols]
-      tile.mergeDeep id: x))
-
-
-createLegendTiles = (colors, tile) ->
-  Immutable.List (for {backgroundColor, color} in colors
-    tile.mergeDeep
-      style:
-        tile: backgroundColor: backgroundColor
-        dot: backgroundColor: color)
-
-
-# app setup
 mountNode = document.getElementsByTagName('body')[0]
 
-
-actionsMap =
-  updateBgColor: handleUpdateBgColor
-  selectTile: handleSelectTile
-
+initialFrame = createGrid 30, 50, BaseTile, Date.now()
 
 state = State.mergeDeep
   actionHandler: actionHandler(actionsMap, render, mountNode)
-  tileGrid: createGrid 30, 50, BaseTile
-  legend: colors: createLegendTiles colors, BaseTile
-
+  currentFrame: initialFrame
+  frames: Immutable.List.of initialFrame
+  legend: colors: createLegendTiles Colors, BaseTile
 
 selectedTile = state.getIn ['legend', 'colors', 0]
 state = state.set 'selectedTile', selectedTile
-
 
 # initial render
 render mountNode, state

@@ -15,3 +15,7 @@ html, body {
 .Legend {
   margin-right: 25px;
 }
+
+.u-displayFlex {
+  display: flex;
+}
