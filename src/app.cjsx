@@ -11,29 +11,12 @@ utils         = require './utils'
 actionsMap    = require './actions'
 actionHandler = require './actionhandler'
 
-{ render
-  highlight
-  partition
-  createGrid
-  removeHighlight
-  createLegendTiles } = utils
+{ partition } = utils
 
 { State
+  InitialFrame
+  LegendTiles
   Colors } = data
-
-# base tile model
-BaseTile = Immutable.Map
-  style: Immutable.Map
-    tile: Immutable.Map
-      width: 10
-      height: 17
-      backgroundColor: "white"
-      borderColor: null
-      borderWidth: 2
-    dot: Immutable.Map
-      width: 2,
-      height: 2,
-      backgroundColor: "red"
 
 # React components
 Tile = React.createClass
@@ -93,6 +76,8 @@ TileGrid = React.createClass
     scale = @props.scale or 1
     updateTileFn = @props.actionHandler.bind null, 'updateFrame'
     playFramesFn = @props.actionHandler.bind null, 'playFrames'
+    deleteFrameFn = @props.actionHandler.bind null, 'deleteFrame'
+    clearFrameFn = @props.actionHandler.bind null, 'clearFrame'
     tileRows = @props.data.get('grid').map (tileRow, i) ->
       <TileRow data={tileRow} scale={scale} actionHandler={handleTileAction} key={i} id={i} />
 
@@ -102,8 +87,10 @@ TileGrid = React.createClass
           <Surface style={backgroundColor: 'white'} top={0} left={0} width={500 * scale} height={Math.floor 510 * scale}>
             {tileRows.toJS()}
           </Surface>
-          <div>
+          <div className="u-flexColumn">
             <button onClick={updateTileFn}>Save</button>
+            <button onClick={clearFrameFn}>Clear Frame</button>
+            <button onClick={deleteFrameFn}>Delete Frame</button>
             <button onClick={playFramesFn}>Play</button>
           </div>
         </div>
@@ -186,13 +173,13 @@ render = (mountNode, state) ->
 
 mountNode = document.getElementsByTagName('body')[0]
 
-initialFrame = createGrid 30, 50, BaseTile, Date.now()
+#initialFrame = createGrid 30, 50, BaseTile, Date.now()
 
 state = State.mergeDeep
   actionHandler: actionHandler(actionsMap, render, mountNode)
-  currentFrame: initialFrame
-  frames: Immutable.List.of initialFrame
-  legend: colors: createLegendTiles Colors, BaseTile
+  currentFrame: InitialFrame
+  frames: Immutable.List.of InitialFrame
+  legend: colors: LegendTiles
 
 selectedTile = state.getIn ['legend', 'colors', 0]
 

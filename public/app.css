@@ -19,3 +19,8 @@ html, body {
 .u-displayFlex {
   display: flex;
 }
+
+.u-flexColumn {
+  display: flex;
+  flex-direction: column;
+}

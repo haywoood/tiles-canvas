@@ -1,4 +1,5 @@
 Immutable = require 'immutable'
+data = require './data'
 
 actionsMap = {}
 
@@ -48,6 +49,24 @@ actionsMap.createNewFrame = (state) ->
 
 actionsMap.makeFrameCurrent = (state, frame) ->
   updateFrame(state).set 'currentFrame', frame
+
+actionsMap.deleteFrame = (state) ->
+  currentFrame = state.get 'currentFrame'
+  idx = state.get('frames').indexOf currentFrame
+  newFrames = state.get('frames').remove idx
+  newState =
+    if newFrames.count() is 0
+      state.set 'frames', data.InitialFrames
+    else
+      state.set 'frames', newFrames
+  newState.set 'currentFrame', newState.get('frames').last()
+
+actionsMap.clearFrame = (state) ->
+  currentFrame = updateFrame(state).get 'currentFrame'
+  idx = state.get('frames').indexOf currentFrame
+  newFrame = currentFrame.set 'grid', data.InitialFrame.get 'grid'
+  state.set 'currentFrame', newFrame
+       .setIn ['frames', idx], newFrame
 
 actionsMap.playFrames = (state) ->
   newState = updateFrame state
