@@ -1,27 +1,25 @@
-React                = require 'react'
-Immutable            = require 'immutable'
-ReactCanvas          = require 'react-canvas'
-ImmutableRenderMixin = require 'react-immutable-render-mixin'
-Surface              = ReactCanvas.Surface
-Group                = ReactCanvas.Group
-Layer                = ReactCanvas.Layer
-actionsMap           = require './actions'
-utils                = require './utils'
-data                 = require './data'
+React          = require 'react'
+Immutable      = require 'immutable'
+ReactCanvas    = require 'react-canvas'
+ImmRenderMixin = require 'react-immutable-render-mixin'
+Surface        = ReactCanvas.Surface
+Group          = ReactCanvas.Group
+Layer          = ReactCanvas.Layer
 
+data          = require './data'
+utils         = require './utils'
+actionsMap    = require './actions'
+actionHandler = require './actionhandler'
 
 { render
   highlight
   partition
   createGrid
-  actionHandler
   removeHighlight
   createLegendTiles } = utils
 
-
 { State
   Colors } = data
-
 
 # base tile model
 BaseTile = Immutable.Map
@@ -37,10 +35,9 @@ BaseTile = Immutable.Map
       height: 2,
       backgroundColor: "red"
 
-
 # React components
 Tile = React.createClass
-  mixins: [ImmutableRenderMixin]
+  mixins: [ImmRenderMixin]
 
   handleClick: ->
     @props.actionHandler @props.data
@@ -63,9 +60,8 @@ Tile = React.createClass
       </Group>
     )
 
-
 TileRow = React.createClass
-  mixins: [ImmutableRenderMixin]
+  mixins: [ImmRenderMixin]
 
   handleTileAction: (tile) ->
     @props.actionHandler @props.id, tile
@@ -86,9 +82,8 @@ TileRow = React.createClass
       </Group>
     )
 
-
 TileGrid = React.createClass
-  mixins: [ImmutableRenderMixin]
+  mixins: [ImmRenderMixin]
 
   handleTileAction: (rowId, tile) ->
     @props.actionHandler 'updateBgColor', rowId, tile
@@ -115,9 +110,8 @@ TileGrid = React.createClass
       </div>
     )
 
-
 Legend = React.createClass
-  mixins: [ImmutableRenderMixin]
+  mixins: [ImmRenderMixin]
 
   handleTileAction: (rowId, tile) ->
     @props.actionHandler 'selectTile', rowId, tile
@@ -147,9 +141,8 @@ Legend = React.createClass
       </div>
     )
 
-
 FrameControls = React.createClass
-  mixins: [ImmutableRenderMixin]
+  mixins: [ImmRenderMixin]
 
   render: ->
     actionHandler = @props.actionHandler
@@ -168,10 +161,8 @@ FrameControls = React.createClass
       {frameNav.toJS()}
     </div>
 
-
-
 App = React.createClass
-  mixins: [ImmutableRenderMixin]
+  mixins: [ImmRenderMixin]
 
   actionHandler: (args...) ->
     @props.data.get('actionHandler').apply null, [@props.data].concat args
@@ -189,7 +180,6 @@ App = React.createClass
       </div>
     )
 
-
 # app setup
 render = (mountNode, state) ->
   React.render <App data={state} />, mountNode
@@ -205,6 +195,7 @@ state = State.mergeDeep
   legend: colors: createLegendTiles Colors, BaseTile
 
 selectedTile = state.getIn ['legend', 'colors', 0]
+
 state = state.set 'selectedTile', selectedTile
 
 # initial render
