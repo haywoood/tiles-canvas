@@ -71,6 +71,11 @@ TileGrid = React.createClass
   handleTileAction: (rowId, tile) ->
     @props.actionHandler 'updateBgColor', rowId, tile
 
+  handleExportTile: ->
+    dataURL = @refs.grid.getDOMNode()
+                        .toDataURL()
+    window.open dataURL, '_blank'
+
   render: ->
     handleTileAction = @handleTileAction
     scale = @props.scale or 1
@@ -88,9 +93,10 @@ TileGrid = React.createClass
     return (
       <div className="TileGrid">
         <div className="u-displayFlex">
-          <Surface style={backgroundColor: 'white'} top={0} left={0} width={500 * scale} height={Math.floor 510 * scale}>
-            {tileRows.toJS()}
-          </Surface>
+          <Surface ref="grid"
+                   style={backgroundColor: 'white'}
+                   top={0} left={0} width={500 * scale}
+                   height={Math.floor 510 * scale}>{tileRows.toJS()}</Surface>
           <div className="u-flexColumn">
             <button onClick={updateTileFn}>Save</button>
             <button onClick={clearFrameFn}>Clear Frame</button>
@@ -100,6 +106,7 @@ TileGrid = React.createClass
               <button onClick={pasteFrameFn}>Paste Copied Frame</button>
             }
             <button onClick={playFramesFn}>Play</button>
+            <button onClick={@handleExportTile}>Export to .png</button>
           </div>
         </div>
       </div>
