@@ -62,8 +62,9 @@ actionsMap.deleteFrame = (state) ->
   newState.set 'currentFrame', newState.get('frames').last()
 
 actionsMap.clearFrame = (state) ->
-  currentFrame = updateFrame(state).get 'currentFrame'
-  idx = state.get('frames').indexOf currentFrame
+  newState = updateFrame(state)
+  currentFrame = newState.get 'currentFrame'
+  idx = newState.get('frames').indexOf currentFrame
   newFrame = currentFrame.set 'grid', data.InitialFrame.get 'grid'
   state.set 'currentFrame', newFrame
        .setIn ['frames', idx], newFrame
