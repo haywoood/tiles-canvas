@@ -33,6 +33,7 @@ data.State = Immutable.Map
   actionHandler: null
   selectedTile: null
   currentFrame: Immutable.Map()
+  copiedFrame: null
   frames: Immutable.List()
   legend: Immutable.Map
     tilesPerRow: 9

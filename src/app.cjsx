@@ -74,10 +74,14 @@ TileGrid = React.createClass
   render: ->
     handleTileAction = @handleTileAction
     scale = @props.scale or 1
-    updateTileFn = @props.actionHandler.bind null, 'updateFrame'
-    playFramesFn = @props.actionHandler.bind null, 'playFrames'
+
+    copyFrameFn   = @props.actionHandler.bind null, 'copyFrame'
+    updateTileFn  = @props.actionHandler.bind null, 'updateFrame'
+    playFramesFn  = @props.actionHandler.bind null, 'playFrames'
+    pasteFrameFn  = @props.actionHandler.bind null, 'pasteFrame'
+    clearFrameFn  = @props.actionHandler.bind null, 'clearFrame'
     deleteFrameFn = @props.actionHandler.bind null, 'deleteFrame'
-    clearFrameFn = @props.actionHandler.bind null, 'clearFrame'
+
     tileRows = @props.data.get('grid').map (tileRow, i) ->
       <TileRow data={tileRow} scale={scale} actionHandler={handleTileAction} key={i} id={i} />
 
@@ -91,6 +95,10 @@ TileGrid = React.createClass
             <button onClick={updateTileFn}>Save</button>
             <button onClick={clearFrameFn}>Clear Frame</button>
             <button onClick={deleteFrameFn}>Delete Frame</button>
+            <button onClick={copyFrameFn}>Copy Frame</button>
+            {if @props.copiedFrame
+              <button onClick={pasteFrameFn}>Paste Copied Frame</button>
+            }
             <button onClick={playFramesFn}>Play</button>
           </div>
         </div>
@@ -157,12 +165,15 @@ App = React.createClass
   render: ->
     frames = @props.data.get 'frames'
     currentFrame = @props.data.get 'currentFrame'
+    copiedFrame = @props.data.get 'copiedFrame'
     return (
       <div className="Tiles">
         <Legend data={@props.data.get 'legend'} actionHandler={@actionHandler} />
         <div style={display: 'flex', flexDirection: 'column'}>
           <FrameControls actionHandler={@actionHandler} frames={frames} currentFrame={currentFrame} />
-          <TileGrid data={@props.data.get 'currentFrame'} actionHandler={@actionHandler} />
+          <TileGrid data={@props.data.get 'currentFrame'}
+                    copiedFrame={copiedFrame}
+                    actionHandler={@actionHandler} />
         </div>
       </div>
     )

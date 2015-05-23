@@ -61,6 +61,15 @@ actionsMap.deleteFrame = (state) ->
       state.set 'frames', newFrames
   newState.set 'currentFrame', newState.get('frames').last()
 
+actionsMap.copyFrame = (state) ->
+  state = updateFrame state
+  state.set 'copiedFrame', state.get 'currentFrame'
+
+actionsMap.pasteFrame = (state) ->
+  grid = state.getIn ['copiedFrame', 'grid']
+  state.setIn ['currentFrame', 'grid'], grid
+       .set 'copiedFrame', null
+
 actionsMap.clearFrame = (state) ->
   newState = updateFrame(state)
   currentFrame = newState.get 'currentFrame'
