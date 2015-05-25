@@ -48,7 +48,12 @@ actionsMap.createNewFrame = (state) ->
           .set 'currentFrame', newGrid
 
 actionsMap.makeFrameCurrent = (state, frame) ->
-  updateFrame(state).set 'currentFrame', frame
+  currentFrameId = state.getIn ['currentFrame', 'id']
+  frameIsCurrent = Immutable.is currentFrameId, frame.get 'id'
+  if frameIsCurrent
+    state
+  else
+    updateFrame(state).set 'currentFrame', frame
 
 actionsMap.deleteFrame = (state) ->
   currentFrame = state.get 'currentFrame'

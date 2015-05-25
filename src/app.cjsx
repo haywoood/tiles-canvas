@@ -26,20 +26,19 @@ Tile = React.createClass
     @props.actionHandler @props.data
 
   render: ->
-    scale = @props.scale or 1
     style = @props.data.get 'style'
+
     wrapStyle = style.get('tile').merge
       top: @props.top
       left: @props.left
+
     dotStyle  = style.get('dot').merge
-      top: @props.top + Math.round (11 * scale)
-      left: @props.left + (4 * scale)
+      top: @props.top + 11
+      left: @props.left + 4
 
     return (
       <Group style={wrapStyle.toJS()} onTouchMove={@handleClick} onTouchStart={@handleClick}>
-        {if scale is 1
-          <Layer style={dotStyle.toJS()} />
-        }
+        <Layer style={dotStyle.toJS()} />
       </Group>
     )
 
@@ -50,15 +49,14 @@ TileRow = React.createClass
     @props.actionHandler @props.id, tile
 
   render: ->
-    scale = @props.scale or 1
     actionHandler = @handleTileAction
     offsetTop     = @props.offsetTop or 0
     offsetLeft    = @props.offsetLeft or 0
-    top    = ((@props.id * 17) + offsetTop) * scale
+    top    = (@props.id * 17) + offsetTop
     tiles  = @props.data.map (tile, i) ->
       id   = tile.get('id') or tile.get 'backgroundColor'
-      left = Math.round ((i * 10) + offsetLeft) * scale
-      <Tile top={top} scale={scale} left={left} key={id} data={tile} actionHandler={actionHandler} />
+      left = (i * 10) + offsetLeft
+      <Tile top={top} left={left} key={id} data={tile} actionHandler={actionHandler} />
     return (
       <Group>
         {tiles.toJS()}
@@ -78,16 +76,16 @@ TileGrid = React.createClass
 
   render: ->
     handleTileAction = @handleTileAction
-    scale = @props.scale or 1
+    { data, width, height } = @props
 
-    tileRows = @props.data.get('grid').map (tileRow, i) ->
-      <TileRow data={tileRow} scale={scale} actionHandler={handleTileAction} key={i} id={i} />
+    tileRows = data.get('grid').map (tileRow, i) ->
+      <TileRow data={tileRow} actionHandler={handleTileAction} key={i} id={i} />
 
     return (
       <Surface ref="grid"
                style={backgroundColor: 'white'}
-               top={0} left={0} width={500 * scale}
-               height={Math.floor 510 * scale}>{tileRows.toJS()}</Surface>
+               top={0} left={0} width={width}
+               height={height}>{tileRows.toJS()}</Surface>
     )
 
 Legend = React.createClass
@@ -148,6 +146,12 @@ App = React.createClass
     @props.data.get('actionHandler').apply null, [@props.data].concat args
 
   render: ->
+    width = @props.data.get 'width'
+    height = @props.data.get 'height'
+
+    approxWidth   = Math.round(width / 10) * 10
+    approxHeight  = Math.round(height / 17) * 17
+
     frames        = @props.data.get 'frames'
     currentFrame  = @props.data.get 'currentFrame'
     copiedFrame   = @props.data.get 'copiedFrame'
@@ -179,6 +183,7 @@ App = React.createClass
           <div className="TileGrid">
             <div className="u-displayFlex">
               <TileGrid data={@props.data.get 'currentFrame'}
+                        width={approxWidth} height={approxHeight}
                         actionHandler={@actionHandler} />
             </div>
           </div>

@@ -1,4 +1,5 @@
 Immutable = require 'immutable'
+round = Math.round
 
 data = {}
 
@@ -29,12 +30,14 @@ BaseTile = data.BaseTile = Immutable.Map
       height: 2,
       backgroundColor: "red"
 
-data.State = Immutable.Map
+State = data.State = Immutable.Map
   actionHandler: null
   selectedTile: null
   currentFrame: Immutable.Map()
   copiedFrame: null
   frames: Immutable.List()
+  width: 400
+  height: 600
   legend: Immutable.Map
     tilesPerRow: 9
     colors: Immutable.List()
@@ -61,7 +64,10 @@ Colors = data.Colors = [
   { backgroundColor: "#e04696", color: "#9c2c4b" }
 ]
 
-InitialFrame = data.InitialFrame = createGrid 30, 50, BaseTile, Date.now()
+InitialFrame = data.InitialFrame = createGrid round(State.get('height') / 17),
+                                              round(State.get('width') / 10),
+                                              BaseTile,
+                                              Date.now()
 
 data.InitialFrames = Immutable.List.of InitialFrame
 
