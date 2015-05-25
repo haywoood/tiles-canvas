@@ -80,36 +80,14 @@ TileGrid = React.createClass
     handleTileAction = @handleTileAction
     scale = @props.scale or 1
 
-    copyFrameFn   = @props.actionHandler.bind null, 'copyFrame'
-    updateTileFn  = @props.actionHandler.bind null, 'updateFrame'
-    playFramesFn  = @props.actionHandler.bind null, 'playFrames'
-    pasteFrameFn  = @props.actionHandler.bind null, 'pasteFrame'
-    clearFrameFn  = @props.actionHandler.bind null, 'clearFrame'
-    deleteFrameFn = @props.actionHandler.bind null, 'deleteFrame'
-
     tileRows = @props.data.get('grid').map (tileRow, i) ->
       <TileRow data={tileRow} scale={scale} actionHandler={handleTileAction} key={i} id={i} />
 
     return (
-      <div className="TileGrid">
-        <div className="u-displayFlex">
-          <Surface ref="grid"
-                   style={backgroundColor: 'white'}
-                   top={0} left={0} width={500 * scale}
-                   height={Math.floor 510 * scale}>{tileRows.toJS()}</Surface>
-          <div className="u-flexColumn">
-            <button onClick={updateTileFn}>Save</button>
-            <button onClick={clearFrameFn}>Clear Frame</button>
-            <button onClick={deleteFrameFn}>Delete Frame</button>
-            <button onClick={copyFrameFn}>Copy Frame</button>
-            {if @props.copiedFrame
-              <button onClick={pasteFrameFn}>Paste Copied Frame</button>
-            }
-            <button onClick={playFramesFn}>Play</button>
-            <button onClick={@handleExportTile}>Export to .png</button>
-          </div>
-        </div>
-      </div>
+      <Surface ref="grid"
+               style={backgroundColor: 'white'}
+               top={0} left={0} width={500 * scale}
+               height={Math.floor 510 * scale}>{tileRows.toJS()}</Surface>
     )
 
 Legend = React.createClass
@@ -170,17 +148,40 @@ App = React.createClass
     @props.data.get('actionHandler').apply null, [@props.data].concat args
 
   render: ->
-    frames = @props.data.get 'frames'
-    currentFrame = @props.data.get 'currentFrame'
-    copiedFrame = @props.data.get 'copiedFrame'
+    frames        = @props.data.get 'frames'
+    currentFrame  = @props.data.get 'currentFrame'
+    copiedFrame   = @props.data.get 'copiedFrame'
+    copyFrameFn   = @actionHandler.bind null, 'copyFrame'
+    updateTileFn  = @actionHandler.bind null, 'updateFrame'
+    playFramesFn  = @actionHandler.bind null, 'playFrames'
+    pasteFrameFn  = @actionHandler.bind null, 'pasteFrame'
+    clearFrameFn  = @actionHandler.bind null, 'clearFrame'
+    deleteFrameFn = @actionHandler.bind null, 'deleteFrame'
+
     return (
       <div className="Tiles">
-        <Legend data={@props.data.get 'legend'} actionHandler={@actionHandler} />
+        <div className="u-flexColumn">
+          <Legend data={@props.data.get 'legend'} actionHandler={@actionHandler} />
+          <div className="u-flexColumn">
+            <button onClick={updateTileFn}>Save</button>
+            <button onClick={clearFrameFn}>Clear Frame</button>
+            <button onClick={deleteFrameFn}>Delete Frame</button>
+            <button onClick={copyFrameFn}>Copy Frame</button>
+            {if copiedFrame
+              <button onClick={pasteFrameFn}>Paste Copied Frame</button>
+            }
+            <button onClick={playFramesFn}>Play</button>
+            <button onClick={@handleExportTile}>Export to .png</button>
+          </div>
+        </div>
         <div style={display: 'flex', flexDirection: 'column'}>
           <FrameControls actionHandler={@actionHandler} frames={frames} currentFrame={currentFrame} />
-          <TileGrid data={@props.data.get 'currentFrame'}
-                    copiedFrame={copiedFrame}
-                    actionHandler={@actionHandler} />
+          <div className="TileGrid">
+            <div className="u-displayFlex">
+              <TileGrid data={@props.data.get 'currentFrame'}
+                        actionHandler={@actionHandler} />
+            </div>
+          </div>
         </div>
       </div>
     )
