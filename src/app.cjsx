@@ -167,15 +167,15 @@ App = React.createClass
         <div className="u-flexColumn">
           <Legend data={@props.data.get 'legend'} actionHandler={@actionHandler} />
           <div className="u-flexColumn">
-            <button onClick={updateTileFn}>Save</button>
-            <button onClick={clearFrameFn}>Clear Frame</button>
-            <button onClick={deleteFrameFn}>Delete Frame</button>
-            <button onClick={copyFrameFn}>Copy Frame</button>
+            <div className="NavButton" onClick={updateTileFn}>Save</div>
+            <div className="NavButton" onClick={clearFrameFn}>Clear Frame</div>
+            <div className="NavButton" onClick={deleteFrameFn}>Delete Frame</div>
+            <div className="NavButton" onClick={copyFrameFn}>Copy Frame</div>
             {if copiedFrame
-              <button onClick={pasteFrameFn}>Paste Copied Frame</button>
+              <div className="NavButton" onClick={pasteFrameFn}>Paste Copied Frame</div>
             }
-            <button onClick={playFramesFn}>Play</button>
-            <button onClick={@handleExportTile}>Export to .png</button>
+            <div className="NavButton" onClick={playFramesFn}>Play</div>
+            <div className="NavButton" onClick={@handleExportTile}>Export to .png</div>
           </div>
         </div>
         <div style={display: 'flex', flexDirection: 'column'}>

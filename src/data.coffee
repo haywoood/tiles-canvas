@@ -36,8 +36,8 @@ State = data.State = Immutable.Map
   currentFrame: Immutable.Map()
   copiedFrame: null
   frames: Immutable.List()
-  width: 400
-  height: 600
+  width: 1024
+  height: 768
   legend: Immutable.Map
     tilesPerRow: 9
     colors: Immutable.List()
