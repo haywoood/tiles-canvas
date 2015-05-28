@@ -1,143 +1,19 @@
 React          = require 'react'
 Immutable      = require 'immutable'
-ReactCanvas    = require 'react-canvas'
 ImmRenderMixin = require 'react-immutable-render-mixin'
-Surface        = ReactCanvas.Surface
-Group          = ReactCanvas.Group
-Layer          = ReactCanvas.Layer
+
+TileGrid      = require './components/grid'
+Legend        = require './components/legend'
+FrameControls = require './components/frame-controls'
 
 data          = require './data'
-utils         = require './utils'
 actionsMap    = require './actions'
 actionHandler = require './actionhandler'
-
-{ partition } = utils
 
 { State
   InitialFrame
   LegendTiles
   Colors } = data
-
-# React components
-Tile = React.createClass
-  mixins: [ImmRenderMixin]
-
-  handleClick: ->
-    @props.actionHandler @props.data
-
-  render: ->
-    style = @props.data.get 'style'
-
-    wrapStyle = style.get('tile').merge
-      top: @props.top
-      left: @props.left
-
-    dotStyle  = style.get('dot').merge
-      top: @props.top + 11
-      left: @props.left + 4
-
-    return (
-      <Group style={wrapStyle.toJS()} onTouchMove={@handleClick} onTouchStart={@handleClick}>
-        <Layer style={dotStyle.toJS()} />
-      </Group>
-    )
-
-TileRow = React.createClass
-  mixins: [ImmRenderMixin]
-
-  handleTileAction: (tile) ->
-    @props.actionHandler @props.id, tile
-
-  render: ->
-    actionHandler = @handleTileAction
-    offsetTop     = @props.offsetTop or 0
-    offsetLeft    = @props.offsetLeft or 0
-    top    = (@props.id * 17) + offsetTop
-    tiles  = @props.data.map (tile, i) ->
-      id   = tile.get('id') or tile.get 'backgroundColor'
-      left = (i * 10) + offsetLeft
-      <Tile top={top} left={left} key={id} data={tile} actionHandler={actionHandler} />
-    return (
-      <Group>
-        {tiles.toJS()}
-      </Group>
-    )
-
-TileGrid = React.createClass
-  mixins: [ImmRenderMixin]
-
-  handleTileAction: (rowId, tile) ->
-    @props.actionHandler 'updateBgColor', rowId, tile
-
-  handleExportTile: ->
-    dataURL = @refs.grid.getDOMNode()
-                        .toDataURL()
-    window.open dataURL, '_blank'
-
-  render: ->
-    handleTileAction = @handleTileAction
-    { data, width, height } = @props
-
-    tileRows = data.get('grid').map (tileRow, i) ->
-      <TileRow data={tileRow} actionHandler={handleTileAction} key={i} id={i} />
-
-    return (
-      <Surface ref="grid"
-               style={backgroundColor: 'white'}
-               top={0} left={0} width={width}
-               height={height}>{tileRows.toJS()}</Surface>
-    )
-
-Legend = React.createClass
-  mixins: [ImmRenderMixin]
-
-  handleTileAction: (rowId, tile) ->
-    @props.actionHandler 'selectTile', rowId, tile
-
-  render: ->
-    colors           = @props.data.get 'colors'
-    handleTileAction = @handleTileAction
-    tilesPerRow      = @props.data.get 'tilesPerRow'
-    width            = (10 * tilesPerRow) + 4
-    rowSpacing       = 15
-
-    rows = partition(tilesPerRow, colors).map (row, i) ->
-      offsetTop = if i > 0 then rowSpacing else 2
-      <TileRow data={row}
-               offsetTop={offsetTop}
-               offsetLeft={2}
-               actionHandler={handleTileAction}
-               key={i} id={i} />
-
-    height = (rows.size * rowSpacing) + (17 * rows.size) + 4
-
-    return (
-      <div className="Legend">
-        <Surface top={0} left={0} height={height} width={width}>
-          {rows.toJS()}
-        </Surface>
-      </div>
-    )
-
-FrameControls = React.createClass
-  mixins: [ImmRenderMixin]
-
-  render: ->
-    actionHandler = @props.actionHandler
-    currentFrameId = @props.currentFrame.get 'id'
-    createNewFrame = actionHandler.bind null, 'createNewFrame'
-    frameNav = @props.frames.map (frame, i) ->
-      makeFrameCurrent = actionHandler.bind null, 'makeFrameCurrent', frame
-      frameIsCurrent = Immutable.is currentFrameId, frame.get 'id'
-      content = if frameIsCurrent then "[#{i++}]" else i++
-
-      <div onClick={makeFrameCurrent}>{content}</div>
-
-
-    <div className="u-displayFlex">
-      <div onClick={createNewFrame}>+</div>
-      {frameNav.toJS()}
-    </div>
 
 App = React.createClass
   mixins: [ImmRenderMixin]
