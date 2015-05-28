@@ -3,6 +3,9 @@ ReactCanvas    = require 'react-canvas'
 Group          = ReactCanvas.Group
 ImmRenderMixin = require 'react-immutable-render-mixin'
 TileRow        = require './row'
+data           = require '../data'
+
+{ TileDimensions: { tileHeight } } = data
 
 TileHalf = React.createClass
   mixins: [ImmRenderMixin]
@@ -15,7 +18,7 @@ TileHalf = React.createClass
     { data, topOffset, multiplier } = @props
     tileRows = data.map (tileRow, i) =>
       <TileRow data={tileRow}
-               topOffset={topOffset * 17}
+               topOffset={topOffset * tileHeight}
                actionHandler={@handleTileAction} key={i} id={i} />
     <Group>{tileRows.toJS()}</Group>
 

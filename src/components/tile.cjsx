@@ -3,6 +3,9 @@ ImmRenderMixin = require 'react-immutable-render-mixin'
 ReactCanvas    = require 'react-canvas'
 Group          = ReactCanvas.Group
 Layer          = ReactCanvas.Layer
+data           = require '../data'
+
+{ TileDimensions: { dotOffset: { top, left } } } = data
 
 Tile = React.createClass
   mixins: [ImmRenderMixin]
@@ -18,8 +21,8 @@ Tile = React.createClass
       left: @props.left
 
     dotStyle = style.get('dot').merge
-      top: @props.top + 11
-      left: @props.left + 4
+      top: @props.top + top
+      left: @props.left + left
 
     return (
       <Group style={wrapStyle.toJS()} onTouchMove={@handleClick} onTouchStart={@handleClick}>

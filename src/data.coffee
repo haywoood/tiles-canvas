@@ -3,6 +3,17 @@ round = Math.round
 
 data = {}
 
+TileDimensions = data.TileDimensions =
+  tileWidth: 20
+  tileHeight: 30
+  dotOffset:
+    top: 20
+    left: 9
+  dotWidth: 2
+  dotHeight: 2
+
+{ tileWidth, tileHeight, dotWidth, dotHeight } = TileDimensions
+
 createGrid = data.createGrid = (rows, cols, tile, id) ->
   Immutable.Map
     id: id
@@ -20,14 +31,14 @@ createLegendTiles = data.createLegendTiles = (colors, tile) ->
 BaseTile = data.BaseTile = Immutable.Map
   style: Immutable.Map
     tile: Immutable.Map
-      width: 10
-      height: 17
+      width: tileWidth
+      height: tileHeight
       backgroundColor: "white"
       borderColor: null
       borderWidth: 2
     dot: Immutable.Map
-      width: 2,
-      height: 2,
+      width: dotWidth
+      height: dotHeight
       backgroundColor: "red"
 
 State = data.State = Immutable.Map
@@ -36,8 +47,8 @@ State = data.State = Immutable.Map
   currentFrame: Immutable.Map()
   copiedFrame: null
   frames: Immutable.List()
-  width: 500
-  height: 700
+  width: 150
+  height: 200
   legend: Immutable.Map
     tilesPerRow: 9
     colors: Immutable.List()

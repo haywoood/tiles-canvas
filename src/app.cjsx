@@ -12,8 +12,11 @@ actionHandler = require './actionhandler'
 
 { State
   InitialFrame
+  TileDimensions
   LegendTiles
   Colors } = data
+
+{ tileWidth, tileHeight, dotWidth, dotHeight } = TileDimensions
 
 App = React.createClass
   mixins: [ImmRenderMixin]
@@ -25,8 +28,8 @@ App = React.createClass
     width = @props.data.get 'width'
     height = @props.data.get 'height'
 
-    approxWidth   = Math.round(width / 10) * 10
-    approxHeight  = Math.round(height / 17) * 17
+    approxWidth   = Math.round(width / tileWidth) * tileWidth
+    approxHeight  = Math.round(height / tileHeight) * tileHeight
 
     frames        = @props.data.get 'frames'
     currentFrame  = @props.data.get 'currentFrame'
