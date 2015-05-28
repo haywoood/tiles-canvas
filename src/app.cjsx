@@ -67,13 +67,10 @@ App = React.createClass
       </div>
     )
 
-# app setup
 render = (mountNode, state) ->
   React.render <App data={state} />, mountNode
 
 mountNode = document.getElementsByTagName('body')[0]
-
-#initialFrame = createGrid 30, 50, BaseTile, Date.now()
 
 state = State.mergeDeep
   actionHandler: actionHandler(actionsMap, render, mountNode)
@@ -82,7 +79,6 @@ state = State.mergeDeep
   legend: colors: LegendTiles
 
 selectedTile = state.getIn ['legend', 'colors', 0]
-
 state = state.set 'selectedTile', selectedTile
 
 # initial render
