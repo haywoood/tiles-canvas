@@ -95,7 +95,7 @@ actionsMap.playFrames = (state) ->
     nextFrame = arr.get idx
     if nextFrame
       newState = newState.setIn ['tileData', 'currentFrame'], nextFrame
-      @renderFn @mountNode, newState
+      @renderState newState
       setTimeout cycleFrames.bind(null, ++idx, arr), 100
   )(0, frames)
   newState
@@ -107,11 +107,12 @@ actionsMap.doUndo = (state) ->
     newTileData = history.pop().last()
     newFuture   = future.push history.last()
     newHistory  = history.pop()
-    state.set 'history', newHistory
-         .set 'future', newFuture
-         .set 'tileData', newTileData
+    state =  state.set 'history', newHistory
+                  .set 'future', newFuture
+                  .set 'tileData', newTileData
+    @renderState state
   else
-    state
+    @renderState state
 
 actionsMap.doRedo = (state) ->
   history = state.get 'history'
@@ -120,11 +121,11 @@ actionsMap.doRedo = (state) ->
     newTileData = future.last()
     newHistory  = pushOntoUndoStack history, future.last()
     newFuture   = future.pop()
-    state.merge
-      tileData: newTileData
-      history: newHistory
-      future: newFuture
+    state =  state.set 'history', newHistory
+                  .set 'future', newFuture
+                  .set 'tileData', newTileData
+    @renderState state
   else
-    state
+    @renderState state
 
 module.exports = actionsMap

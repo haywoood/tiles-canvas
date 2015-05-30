@@ -76,6 +76,7 @@ App = React.createClass
 
 render = (mountNode, state) ->
   React.render <App data={state} />, mountNode
+  return null
 
 mountNode = document.getElementsByTagName('body')[0]
 
