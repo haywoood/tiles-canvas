@@ -31,8 +31,8 @@ App = React.createClass
     approxWidth   = Math.round(width / tileWidth) * tileWidth
     approxHeight  = Math.round(height / tileHeight) * tileHeight
 
-    frames        = @props.data.get 'frames'
-    currentFrame  = @props.data.get 'currentFrame'
+    frames        = @props.data.getIn ['tileData', 'frames']
+    currentFrame  = @props.data.getIn ['tileData', 'currentFrame']
     copiedFrame   = @props.data.get 'copiedFrame'
     copyFrameFn   = @actionHandler.bind null, 'copyFrame'
     updateTileFn  = @actionHandler.bind null, 'updateFrame'
@@ -40,6 +40,7 @@ App = React.createClass
     pasteFrameFn  = @actionHandler.bind null, 'pasteFrame'
     clearFrameFn  = @actionHandler.bind null, 'clearFrame'
     deleteFrameFn = @actionHandler.bind null, 'deleteFrame'
+    undoFn        = @actionHandler.bind null, 'doUndo'
 
     return (
       <div className="Tiles">
@@ -47,6 +48,7 @@ App = React.createClass
           <Legend data={@props.data.get 'legend'} actionHandler={@actionHandler} />
           <div className="u-flexColumn">
             <div className="NavButton" onClick={updateTileFn}>Save</div>
+            <div className="NavButton" onClick={undoFn}>Undo</div>
             <div className="NavButton" onClick={clearFrameFn}>Clear Frame</div>
             <div className="NavButton" onClick={deleteFrameFn}>Delete Frame</div>
             <div className="NavButton" onClick={copyFrameFn}>Copy Frame</div>
@@ -61,7 +63,7 @@ App = React.createClass
           <FrameControls actionHandler={@actionHandler} frames={frames} currentFrame={currentFrame} />
           <div className="TileGrid">
             <div className="u-displayFlex">
-              <TileGrid data={@props.data.get 'currentFrame'}
+              <TileGrid data={currentFrame}
                         width={approxWidth} height={approxHeight}
                         actionHandler={@actionHandler} />
             </div>
@@ -77,12 +79,14 @@ mountNode = document.getElementsByTagName('body')[0]
 
 state = State.mergeDeep
   actionHandler: actionHandler(actionsMap, render, mountNode)
-  currentFrame: InitialFrame
-  frames: Immutable.List.of InitialFrame
+  tileData:
+    currentFrame: InitialFrame
+    frames: Immutable.List.of InitialFrame
   legend: colors: LegendTiles
 
 selectedTile = state.getIn ['legend', 'colors', 0]
 state = state.set 'selectedTile', selectedTile
+state = state.set 'history', Immutable.List.of state.get 'tileData'
 
 # initial render
 render mountNode, state

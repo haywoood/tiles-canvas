@@ -44,9 +44,12 @@ BaseTile = data.BaseTile = Immutable.Map
 State = data.State = Immutable.Map
   actionHandler: null
   selectedTile: null
-  currentFrame: Immutable.Map()
   copiedFrame: null
-  frames: Immutable.List()
+  tileData: Immutable.Map
+    currentFrame: Immutable.Map()
+    frames: Immutable.List()
+  history: Immutable.List()
+  future: Immutable.List()
   width: 350
   height: 400
   legend: Immutable.Map
