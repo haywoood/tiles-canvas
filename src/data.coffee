@@ -4,11 +4,11 @@ round = Math.round
 data = {}
 
 TileDimensions = data.TileDimensions =
-  tileWidth: 20
-  tileHeight: 30
+  tileWidth: 10
+  tileHeight: 17
   dotOffset:
-    top: 20
-    left: 9
+    top: 12
+    left: 4
   dotWidth: 2
   dotHeight: 2
 
@@ -47,8 +47,8 @@ State = data.State = Immutable.Map
   currentFrame: Immutable.Map()
   copiedFrame: null
   frames: Immutable.List()
-  width: 150
-  height: 200
+  width: 350
+  height: 400
   legend: Immutable.Map
     tilesPerRow: 9
     colors: Immutable.List()
