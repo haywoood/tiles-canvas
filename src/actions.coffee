@@ -90,7 +90,7 @@ actionsMap.clearFrame = (state) ->
 
 actionsMap.playFrames = (state) ->
   newState = updateFrame state
-  frames = newState.get 'frames'
+  frames = newState.getIn ['tileData', 'frames']
   (cycleFrames = (idx, arr) =>
     nextFrame = arr.get idx
     if nextFrame
