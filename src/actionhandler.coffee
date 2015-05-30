@@ -7,6 +7,7 @@ module.exports = (actionsMap, renderFn, mountNode) ->
     context =
       renderFn: renderFn
       mountNode: mountNode
-    state = pushOntoUndoStack state
+    newHistory = pushOntoUndoStack state.get('history'), state.get 'tileData'
+    state = state.set 'history', newHistory
     newState = actionsMap[fnName].bind(context).apply null, [state].concat args
     renderFn mountNode, newState

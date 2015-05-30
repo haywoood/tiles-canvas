@@ -41,6 +41,7 @@ App = React.createClass
     clearFrameFn  = @actionHandler.bind null, 'clearFrame'
     deleteFrameFn = @actionHandler.bind null, 'deleteFrame'
     undoFn        = @actionHandler.bind null, 'doUndo'
+    redoFn        = @actionHandler.bind null, 'doRedo'
 
     return (
       <div className="Tiles">
@@ -49,6 +50,7 @@ App = React.createClass
           <div className="u-flexColumn">
             <div className="NavButton" onClick={updateTileFn}>Save</div>
             <div className="NavButton" onClick={undoFn}>Undo</div>
+            <div className="NavButton" onClick={redoFn}>Redo</div>
             <div className="NavButton" onClick={clearFrameFn}>Clear Frame</div>
             <div className="NavButton" onClick={deleteFrameFn}>Delete Frame</div>
             <div className="NavButton" onClick={copyFrameFn}>Copy Frame</div>

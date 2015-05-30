@@ -2,7 +2,9 @@ Immutable = require 'immutable'
 data      = require './data'
 history   = require './history'
 
-{ undoIsPossible } = history
+{ undoIsPossible
+  redoIsPossible
+  pushOntoUndoStack } = history
 
 actionsMap = {}
 
@@ -105,24 +107,23 @@ actionsMap.doUndo = (state) ->
     newTileData = history.pop().last()
     newFuture   = future.push history.last()
     newHistory  = history.pop()
-    a = state.set 'history', newHistory
-         .set 'tileData', newTileData
+    state.set 'history', newHistory
          .set 'future', newFuture
+         .set 'tileData', newTileData
   else
     state
 
-#actionsMap.doRedo = (state) ->
-#  history = state.get 'history'
-#  future  = state.get 'future'
-#  if redoIsPossible future
-#    newTermsList    = future.last().get 'list'
-#    newHistory      = pushOntoUndoStack history, future.last()
-#    newFuture       = future.pop()
-#    newLexiconModel = lexiconModel.merge
-#      history: newHistory
-#      future: newFuture
-#      terms: newTermsList
-#    newState = updateLexiconModel curState, lexiconModel, newLexiconModel
-#    updateState controller, newState
+actionsMap.doRedo = (state) ->
+  future  = state.get 'future'
+  if redoIsPossible future
+    newTileData = future.last()
+    newHistory  = pushOntoUndoStack history, future.last()
+    newFuture   = future.pop()
+    state.merge
+      tileData: newTileData
+      history: newHistory
+      future: newFuture
+  else
+    state
 
 module.exports = actionsMap
