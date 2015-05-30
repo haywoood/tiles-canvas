@@ -9,4 +9,14 @@ To run:
 `gulp`  
 then visit [http://localhost:8080/](http://localhost:8080/)
 
+Todos
+ - magic want select
+ - paint bucket
+ - shift select
+ - larger brushes
+ - export frames to gif
+ - add / delete legend tiles
+ - local storage adapter
+ - thoughtful design
+
 ![Tiles](https://s3.amazonaws.com/tiles-canvas/Screen+Shot+2015-02-13+at+9.58.53+PM.png)
