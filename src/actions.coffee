@@ -114,6 +114,7 @@ actionsMap.doUndo = (state) ->
     state
 
 actionsMap.doRedo = (state) ->
+  history = state.get 'history'
   future  = state.get 'future'
   if redoIsPossible future
     newTileData = future.last()
