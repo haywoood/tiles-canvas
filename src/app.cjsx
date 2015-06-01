@@ -23,8 +23,7 @@ App = React.createClass
   mixins: [ImmRenderMixin]
 
   handleExportImage: ->
-    dataURL = @refs.tileGrid.refs.grid.getDOMNode().toDataURL()
-    window.open dataURL, '_blank'
+    window.open @refs.tileGrid.getImageURL(), '_blank'
 
   actionHandler: (args...) ->
     @props.data.get('actionHandler').apply null, [@props.data].concat args

@@ -11,6 +11,9 @@ Surface        = ReactCanvas.Surface
 TileGrid = React.createClass
   mixins: [ImmRenderMixin]
 
+  getImageURL: ->
+    @refs.grid.getDOMNode().toDataURL()
+
   render: ->
     { data, width, height, actionHandler } = @props
     grid        = data.get 'grid'
