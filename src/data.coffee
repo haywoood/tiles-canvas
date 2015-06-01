@@ -41,20 +41,32 @@ BaseTile = data.BaseTile = Immutable.Map
       height: dotHeight
       backgroundColor: "red"
 
-State = data.State = Immutable.Map
+State = data.State = Immutable.fromJS
   actionHandler: null
   selectedTile: null
   copiedFrame: null
-  tileData: Immutable.Map
-    currentFrame: Immutable.Map()
-    frames: Immutable.List()
-  history: Immutable.List()
-  future: Immutable.List()
+  tools:
+    selected: "brush"
+    options: [{
+      name: "brush"
+      actionArgs: ["selectTool", "brush"]
+      display: "brush"
+    }
+    {
+      name: "fill"
+      actionArgs: ["selectTool", "fill"]
+      display: "fill"
+    }]
+  tileData:
+    currentFrame: {}
+    frames: []
+  history: []
+  future: []
   width: 350
   height: 400
-  legend: Immutable.Map
+  legend:
     tilesPerRow: 9
-    colors: Immutable.List()
+    colors: []
 
 # colors options for legend
 Colors = data.Colors = [

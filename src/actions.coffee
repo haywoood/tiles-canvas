@@ -128,4 +128,7 @@ actionsMap.doRedo = (state) ->
   else
     @renderState state
 
+ actionsMap.selectTool = (state, tool) ->
+   state.setIn ['tools', 'selected'], tool
+
 module.exports = actionsMap

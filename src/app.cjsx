@@ -5,6 +5,7 @@ ImmRenderMixin = require 'react-immutable-render-mixin'
 TileGrid      = require './components/grid'
 Legend        = require './components/legend'
 FrameControls = require './components/frame-controls'
+Tools         = require './components/tools'
 
 data          = require './data'
 actionsMap    = require './actions'
@@ -25,8 +26,10 @@ App = React.createClass
     @props.data.get('actionHandler').apply null, [@props.data].concat args
 
   render: ->
-    width = @props.data.get 'width'
-    height = @props.data.get 'height'
+    width      = @props.data.get 'width'
+    height     = @props.data.get 'height'
+    toolsData  = @props.data.get 'tools'
+    legendData = @props.data.get 'legend'
 
     approxWidth   = Math.round(width / tileWidth) * tileWidth
     approxHeight  = Math.round(height / tileHeight) * tileHeight
@@ -34,32 +37,12 @@ App = React.createClass
     frames        = @props.data.getIn ['tileData', 'frames']
     currentFrame  = @props.data.getIn ['tileData', 'currentFrame']
     copiedFrame   = @props.data.get 'copiedFrame'
-    copyFrameFn   = @actionHandler.bind null, 'copyFrame'
-    updateTileFn  = @actionHandler.bind null, 'updateFrame'
-    playFramesFn  = @actionHandler.bind null, 'playFrames'
-    pasteFrameFn  = @actionHandler.bind null, 'pasteFrame'
-    clearFrameFn  = @actionHandler.bind null, 'clearFrame'
-    deleteFrameFn = @actionHandler.bind null, 'deleteFrame'
-    undoFn        = @actionHandler.bind null, 'doUndo'
-    redoFn        = @actionHandler.bind null, 'doRedo'
 
     return (
       <div className="Tiles">
         <div className="u-flexColumn">
-          <Legend data={@props.data.get 'legend'} actionHandler={@actionHandler} />
-          <div className="u-flexColumn">
-            <div className="NavButton" onClick={updateTileFn}>Save</div>
-            <div className="NavButton" onClick={undoFn}>Undo</div>
-            <div className="NavButton" onClick={redoFn}>Redo</div>
-            <div className="NavButton" onClick={clearFrameFn}>Clear Frame</div>
-            <div className="NavButton" onClick={deleteFrameFn}>Delete Frame</div>
-            <div className="NavButton" onClick={copyFrameFn}>Copy Frame</div>
-            {if copiedFrame
-              <div className="NavButton" onClick={pasteFrameFn}>Paste Copied Frame</div>
-            }
-            <div className="NavButton" onClick={playFramesFn}>Play</div>
-            <div className="NavButton" onClick={@handleExportTile}>Export to .png</div>
-          </div>
+          <Legend data={legendData} actionHandler={@actionHandler} />
+          <Tools data={toolsData} copiedFrame={copiedFrame} actionHandler={@actionHandler} />
         </div>
         <div style={display: 'flex', flexDirection: 'column'}>
           <FrameControls actionHandler={@actionHandler} frames={frames} currentFrame={currentFrame} />
