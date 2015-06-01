@@ -22,6 +22,10 @@ actionHandler = require './actionhandler'
 App = React.createClass
   mixins: [ImmRenderMixin]
 
+  handleExportImage: ->
+    dataURL = @refs.tileGrid.refs.grid.getDOMNode().toDataURL()
+    window.open dataURL, '_blank'
+
   actionHandler: (args...) ->
     @props.data.get('actionHandler').apply null, [@props.data].concat args
 
@@ -42,7 +46,10 @@ App = React.createClass
       <div className="Tiles">
         <div className="u-flexColumn">
           <Legend data={legendData} actionHandler={@actionHandler} />
-          <Tools data={toolsData} copiedFrame={copiedFrame} actionHandler={@actionHandler} />
+          <Tools data={toolsData}
+                 copiedFrame={copiedFrame}
+                 exportImageAction={@handleExportImage}
+                 actionHandler={@actionHandler} />
         </div>
         <div style={display: 'flex', flexDirection: 'column'}>
           <FrameControls actionHandler={@actionHandler} frames={frames} currentFrame={currentFrame} />
@@ -50,6 +57,7 @@ App = React.createClass
             <div className="u-displayFlex">
               <TileGrid data={currentFrame}
                         width={approxWidth} height={approxHeight}
+                        ref="tileGrid"
                         actionHandler={@actionHandler} />
             </div>
           </div>

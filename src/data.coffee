@@ -46,10 +46,11 @@ State = data.State = Immutable.fromJS
   selectedTile: null
   copiedFrame: null
   tools:
-    selected: "brush"
+    selected:
+      name: "brush"
+      display: "brush"
     options: [{
       name: "brush"
-      actionArgs: ["selectTool", "brush"]
       display: "brush"
     }
     {

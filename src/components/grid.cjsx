@@ -11,11 +11,6 @@ Surface        = ReactCanvas.Surface
 TileGrid = React.createClass
   mixins: [ImmRenderMixin]
 
-  handleExportTile: ->
-    dataURL = @refs.grid.getDOMNode()
-                        .toDataURL()
-    window.open dataURL, '_blank'
-
   render: ->
     { data, width, height, actionHandler } = @props
     grid        = data.get 'grid'
@@ -28,6 +23,7 @@ TileGrid = React.createClass
 
     return (
       <Surface style={backgroundColor: 'white'}
+               ref="grid"
                width={width}
                height={height}>{tileHalves.toJS()}</Surface>
     )

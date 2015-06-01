@@ -1,5 +1,8 @@
 React = require 'react/addons'
+Immutable = require 'immutable'
 ImmRenderMixin = require 'react-immutable-render-mixin'
+
+equal = Immutable.is
 
 Tools = React.createClass
   mixins: [ImmRenderMixin]
@@ -8,6 +11,7 @@ Tools = React.createClass
     ah            = @props.actionHandler
     tools         = @props.data
     copiedFrame   = @props.copiedFrame
+
     selectedTool  = tools.get 'selected'
     copyFrameFn   = ah.bind null, 'copyFrame'
     updateTileFn  = ah.bind null, 'updateFrame'
@@ -22,12 +26,12 @@ Tools = React.createClass
       name = tool.get 'name'
       display = tool.get 'display'
       args = tool.get 'actionArgs'
-      isSelectedTool = name is selectedTool
-      thunk = -> ah.apply null, args.toJS()
+      isSelectedTool = equal tool, selectedTool
+      action = ah.bind null, 'selectTool', tool
       classNames = React.addons.classSet
         NavButton: true
         activeTool: isSelectedTool
-      <div className={classNames} style={width: 60} onClick={thunk}>
+      <div className={classNames} style={width: 60} onClick={action}>
         {display}
       </div>
 
@@ -43,7 +47,7 @@ Tools = React.createClass
         <div className="NavButton" onClick={pasteFrameFn}>Paste Copied Frame</div>
       }
       <div className="NavButton" onClick={playFramesFn}>Play</div>
-      <div className="NavButton" onClick={@handleExportTile}>Export to .png</div>
+      <div className="NavButton" onClick={@props.exportImageAction}>Export to .png</div>
     </div>
 
 module.exports = Tools
