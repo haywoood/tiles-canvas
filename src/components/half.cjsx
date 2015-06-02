@@ -12,7 +12,7 @@ TileHalf = React.createClass
 
   handleTileAction: (rowId, tile) ->
     rowId = rowId + (@props.topOffset or 0)
-    @props.actionHandler 'updateBgColor', rowId, tile
+    @props.actionHandler 'tileAction', rowId, tile
 
   render: ->
     { data, topOffset, multiplier } = @props

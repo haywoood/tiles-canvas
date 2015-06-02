@@ -28,7 +28,7 @@ actionsMap.selectTile = (state, rowId, tile) ->
   newState = newState.setIn ['legend', 'colors', idx], newTile
   newState = newState.set 'selectedTile', tile
 
-actionsMap.updateBgColor = (state, rowId, tile) ->
+updateBgColor = actionsMap.updateBgColor = (state, rowId, tile) ->
   rowIdx = rowId
   tileIdx = tile.get('id') - 1
   newTile  = tile.merge state.get 'selectedTile'
@@ -69,7 +69,8 @@ actionsMap.deleteFrame = (state) ->
       state.setIn ['tileData', 'frames'], data.InitialFrames
     else
       state.setIn ['tileData', 'frames'], newFrames
-  newState.setIn ['tileData', 'currentFrame'], newState.get('frames').last()
+  newFrame = newState.getIn(['tileData', 'frames']).last()
+  newState.setIn ['tileData', 'currentFrame'], newFrame
 
 actionsMap.copyFrame = (state) ->
   state = updateFrame state
@@ -128,7 +129,16 @@ actionsMap.doRedo = (state) ->
   else
     @renderState state
 
- actionsMap.selectTool = (state, tool) ->
-   state.setIn ['tools', 'selected'], tool
+actionsMap.selectTool = (state, tool) ->
+ state.setIn ['tools', 'selected'], tool
+
+toolActionDispatch = (state, args...) ->
+  toolActionsMap =
+    brush: updateBgColor
+  curTool = state.getIn ['tools', 'selected', 'name']
+  toolActionsMap[curTool].apply @, [state].concat args
+
+actionsMap.tileAction = (args...) ->
+  toolActionDispatch.apply @, args
 
 module.exports = actionsMap
