@@ -16,6 +16,7 @@ floodFill = (mapData, x, y, oldVal, newVal) ->
   mapHeight = mapData.length
   mapWidth  = mapData[0].length
   if oldVal is null
+    return if tileEquals mapData[y][x], newVal
     oldVal = Immutable.fromJS(mapData[y][x]).toJS()
   return unless tileEquals mapData[y][x], oldVal
   updateTileMut mapData[y][x], newVal
