@@ -22,10 +22,11 @@ highlight = (tile) ->
       borderWidth: 2
       zIndex: 1
 
-actionsMap.selectTile = (state, x, y, tile) ->
+actionsMap.selectTile = (state, rowId, tile) ->
+  idx = state.getIn(['legend', 'colors']).indexOf tile
   newTile = highlight tile
   newState = state.updateIn ['legend', 'colors'], (xs) -> xs.map removeHighlight
-  newState = newState.setIn ['legend', 'colors', x], newTile
+  newState = newState.setIn ['legend', 'colors', idx], newTile
   newState = newState.set 'selectedTile', tile
 
 updateBgColor = actionsMap.updateBgColor = (state, x, y, tile) ->

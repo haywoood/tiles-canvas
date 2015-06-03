@@ -15,8 +15,7 @@ Legend = React.createClass
   mixins: [ImmRenderMixin]
 
   handleTileAction: (x, y, tile) ->
-    @props.actionHandler 'selectTile', x, y, tile
-
+    @props.actionHandler 'selectTile', y, tile
 
   render: ->
     colors           = @props.data.get 'colors'

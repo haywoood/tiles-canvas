@@ -11,8 +11,12 @@ TileHalf = React.createClass
   mixins: [ImmRenderMixin]
 
   handleTileAction: (x, y, tile) ->
-    rowId = rowId + (@props.topOffset or 0)
-    @props.actionHandler 'tileAction', x, y, tile
+    adjustedY =
+      if @props.id > 0
+        @props.data.size + y
+      else
+        y
+    @props.actionHandler 'tileAction', x, adjustedY, tile
 
   render: ->
     { data, topOffset, multiplier } = @props
