@@ -1,6 +1,7 @@
 Immutable = require 'immutable'
 data      = require './data'
 history   = require './history'
+floodFill = require './flood-fill'
 
 { undoIsPossible
   redoIsPossible
@@ -21,18 +22,15 @@ highlight = (tile) ->
       borderWidth: 2
       zIndex: 1
 
-actionsMap.selectTile = (state, rowId, tile) ->
-  idx = state.getIn(['legend', 'colors']).indexOf tile
+actionsMap.selectTile = (state, x, y, tile) ->
   newTile = highlight tile
   newState = state.updateIn ['legend', 'colors'], (xs) -> xs.map removeHighlight
-  newState = newState.setIn ['legend', 'colors', idx], newTile
+  newState = newState.setIn ['legend', 'colors', x], newTile
   newState = newState.set 'selectedTile', tile
 
-updateBgColor = actionsMap.updateBgColor = (state, rowId, tile) ->
-  rowIdx = rowId
-  tileIdx = tile.get('id') - 1
+updateBgColor = actionsMap.updateBgColor = (state, x, y, tile) ->
   newTile  = tile.merge state.get 'selectedTile'
-  state.setIn ['tileData', 'currentFrame', 'grid', rowIdx, tileIdx], newTile
+  state.setIn ['tileData', 'currentFrame', 'grid', y, x], newTile
 
 updateFrame = actionsMap.updateFrame = (state) ->
   frame = state.getIn ['tileData', 'currentFrame']
@@ -132,9 +130,16 @@ actionsMap.doRedo = (state) ->
 actionsMap.selectTool = (state, tool) ->
  state.setIn ['tools', 'selected'], tool
 
+handleFill = (state, x, y, tile) ->
+  grid = state.getIn ['tileData', 'currentFrame', 'grid']
+  newVal = state.get 'selectedTile'
+  newGrid = floodFill grid, x, y, null, newVal
+  state.setIn ['tileData', 'currentFrame', 'grid'], newGrid
+
 toolActionDispatch = (state, args...) ->
   toolActionsMap =
     brush: updateBgColor
+    fill: handleFill
   curTool = state.getIn ['tools', 'selected', 'name']
   toolActionsMap[curTool].apply @, [state].concat args
 

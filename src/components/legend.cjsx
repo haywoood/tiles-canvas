@@ -14,8 +14,9 @@ data           = require '../data'
 Legend = React.createClass
   mixins: [ImmRenderMixin]
 
-  handleTileAction: (rowId, tile) ->
-    @props.actionHandler 'selectTile', rowId, tile
+  handleTileAction: (x, y, tile) ->
+    @props.actionHandler 'selectTile', x, y, tile
+
 
   render: ->
     colors           = @props.data.get 'colors'

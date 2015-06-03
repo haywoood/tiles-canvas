@@ -11,7 +11,9 @@ TileRow = React.createClass
   mixins: [ImmRenderMixin]
 
   handleTileAction: (tile) ->
-    @props.actionHandler @props.id, tile
+    x = @props.data.indexOf tile
+    y = @props.id
+    @props.actionHandler x, y, tile
 
   render: ->
     actionHandler = @handleTileAction

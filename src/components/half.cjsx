@@ -10,9 +10,9 @@ data           = require '../data'
 TileHalf = React.createClass
   mixins: [ImmRenderMixin]
 
-  handleTileAction: (rowId, tile) ->
+  handleTileAction: (x, y, tile) ->
     rowId = rowId + (@props.topOffset or 0)
-    @props.actionHandler 'tileAction', rowId, tile
+    @props.actionHandler 'tileAction', x, y, tile
 
   render: ->
     { data, topOffset, multiplier } = @props
