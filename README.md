@@ -11,7 +11,6 @@ then visit [http://localhost:8080/](http://localhost:8080/)
 
 Todos
  - magic want select
- - paint bucket
  - shift select
  - larger brushes
  - export frames to gif
