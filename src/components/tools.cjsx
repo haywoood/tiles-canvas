@@ -14,7 +14,6 @@ Tools = React.createClass
 
     selectedTool  = tools.get 'selected'
     copyFrameFn   = ah.bind null, 'copyFrame'
-    updateTileFn  = ah.bind null, 'updateFrame'
     playFramesFn  = ah.bind null, 'playFrames'
     pasteFrameFn  = ah.bind null, 'pasteFrame'
     clearFrameFn  = ah.bind null, 'clearFrame'
@@ -37,7 +36,6 @@ Tools = React.createClass
 
     <div className="u-flexColumn">
       {toolButtons.toJS()}
-      <div className="NavButton" onClick={updateTileFn}>Save</div>
       <div className="NavButton" onClick={undoFn}>Undo</div>
       <div className="NavButton" onClick={redoFn}>Redo</div>
       <div className="NavButton" onClick={clearFrameFn}>Clear Frame</div>

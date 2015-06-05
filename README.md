@@ -19,3 +19,5 @@ Todos
  - thoughtful design
 
 ![Tiles](https://s3.amazonaws.com/tiles-canvas/Screen+Shot+2015-02-13+at+9.58.53+PM.png)
+
+MIT
