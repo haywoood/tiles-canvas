@@ -11,6 +11,8 @@ data          = require './data'
 actionsMap    = require './actions'
 actionHandler = require './actionhandler'
 
+require './styles/app.css'
+
 { State
   InitialFrame
   TileDimensions

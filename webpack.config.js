@@ -20,7 +20,9 @@ module.exports = {
   module: {
     loaders: [
       { test: /\.cjsx$/, loaders: ['coffee', 'cjsx']},
-      { test: /\.coffee$/, loader: 'coffee' }
+      { test: /\.coffee$/, loader: 'coffee' },
+      { test:   /\.css$/,
+        loader: "style-loader!css-loader!cssnext-loader" }
     ]
   }
 };

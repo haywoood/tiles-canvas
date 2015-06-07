@@ -2,7 +2,6 @@ React          = require 'react'
 ImmRenderMixin = require 'react-immutable-render-mixin'
 TileHalf       = require './half'
 utils          = require '../utils'
-ImmRenderMixin = require 'react-immutable-render-mixin'
 ReactCanvas    = require 'react-canvas'
 Surface        = ReactCanvas.Surface
 
