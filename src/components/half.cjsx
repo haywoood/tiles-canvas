@@ -2,7 +2,7 @@ React          = require 'react'
 ReactCanvas    = require 'react-canvas'
 Group          = ReactCanvas.Group
 ImmRenderMixin = require 'react-immutable-render-mixin'
-TileRow        = require './row'
+TileRow        = require './tile-row'
 data           = require '../data'
 
 { TileDimensions: { tileHeight } } = data

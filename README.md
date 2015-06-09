@@ -17,6 +17,8 @@ Todos
  - add / delete legend tiles
  - local storage adapter
  - thoughtful design
+ - rgb color picker
+ - public API for programatically generating frames and designs
 
 ![Tiles](https://s3.amazonaws.com/tiles-canvas/Screen+Shot+2015-02-13+at+9.58.53+PM.png)
 

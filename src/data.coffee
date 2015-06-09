@@ -54,6 +54,11 @@ State = data.State = Immutable.fromJS
       display: "brush"
     }
     {
+      name: "colorfill"
+      actionArgs: ["selectTool", "colorfill"]
+      display: "color fill"
+    }
+    {
       name: "fill"
       actionArgs: ["selectTool", "fill"]
       display: "fill"

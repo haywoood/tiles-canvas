@@ -137,10 +137,22 @@ handleFill = (state, x, y, tile) ->
   newGrid = floodFill grid, x, y, null, newVal
   state.setIn ['tileData', 'currentFrame', 'grid'], newGrid
 
+handleColorFill = (state, x, y, tile) ->
+  grid     = state.getIn ['tileData', 'currentFrame', 'grid']
+  oldStyle = tile.get 'style'
+  newStyle = state.getIn ['selectedTile', 'style']
+  newGrid  = grid.map (row) -> row.map (col) ->
+    if Immutable.is col.get('style'), oldStyle
+      col.set 'style', newStyle
+    else
+      col
+  state.setIn ['tileData', 'currentFrame', 'grid'], newGrid
+
 toolActionDispatch = (state, args...) ->
   toolActionsMap =
     brush: updateBgColor
     fill: handleFill
+    colorfill: handleColorFill
   curTool = state.getIn ['tools', 'selected', 'name']
   toolActionsMap[curTool].apply @, [state].concat args
 
